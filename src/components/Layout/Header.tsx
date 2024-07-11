@@ -1,5 +1,6 @@
 import { Icon } from "@iconify-icon/react"
 import {
+  Avatar,
   Badge,
   Button,
   Divider,
@@ -22,10 +23,12 @@ import {
 } from "@nextui-org/react"
 import Logo from "components/common/Logo"
 import LoginModal from "modules/auth/components/LoginModal"
-import React from "react"
+import { useUser } from "store/user"
 
 export default function Header() {
-  const [isMenuOpen, setIsMenuOpen] = React.useState(false)
+  const { user } = useUser()
+
+  console.log(user)
 
   const disclosureLogin = useDisclosure()
 
@@ -45,7 +48,6 @@ export default function Header() {
   return (
     <Navbar
       isBordered
-      onMenuOpenChange={setIsMenuOpen}
       classNames={{
         wrapper: "max-w-default px-default",
       }}
@@ -110,7 +112,7 @@ export default function Header() {
             }}
           >
             <ModalContent>
-              <LoginModal />
+              {(onClose) => <LoginModal onClose={onClose} />}
             </ModalContent>
           </Modal>
         </NavbarItem>
@@ -121,7 +123,15 @@ export default function Header() {
                 isIconOnly
                 size="lg"
                 startContent={
-                  <Icon icon="mingcute:user-4-line" className="text-2xl" />
+                  !user.email ? (
+                    <Icon icon="mingcute:user-4-line" className="text-3xl" />
+                  ) : (
+                    <Avatar
+                      size="sm"
+                      src={user.profile.avatarUrl}
+                      name={user.profile.username}
+                    />
+                  )
                 }
                 variant="flat"
               />

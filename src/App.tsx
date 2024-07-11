@@ -10,8 +10,6 @@ import { queryClient } from "./configs/queryClient"
 import Routes from "./routes"
 
 export default function App() {
-  console.log(import.meta.env.VITE_GOOGLE_CLIENT_ID)
-
   return (
     <BrowserRouter>
       <NextUIProvider>
