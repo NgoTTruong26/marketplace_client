@@ -9,6 +9,7 @@ export interface Profile {
 export interface User {
   id: number
   email: string
+  walletBalance: number
   profile: Profile
 }
 

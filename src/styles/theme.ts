@@ -23,7 +23,7 @@ export const colors: Partial<ThemeColors> = {
     700: "#348CE5",
     800: "#2081E2",
     900: "#1D75CD",
-    DEFAULT: "#2081E2",
+    DEFAULT: "#4696E7",
   },
 }
 
