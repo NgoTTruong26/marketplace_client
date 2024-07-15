@@ -1,9 +1,34 @@
 import { Icon } from "@iconify-icon/react/dist/iconify.mjs"
 import { Avatar, Button, Input, Textarea } from "@nextui-org/react"
+import { AxiosResponse } from "axios"
+import clsx from "clsx"
+import LoadingIcon from "components/common/LoadingIcon"
+import { accept, maxSize } from "constants/upload"
+import useUpload from "hooks/useUpload"
+import { useState } from "react"
 import { useUser } from "store/user"
 
 export default function ProfilePage() {
   const { user } = useUser()
+
+  const [avatarUrl, setAvatarUrl] = useState<string>(user.profile.avatarUrl)
+
+  const onSuccess = (data: AxiosResponse<string>) => {
+    setAvatarUrl(data.data)
+    /* methods.setValue("avatarUrl", data.data, {
+      shouldDirty: true,
+      shouldValidate: true,
+    }) */
+
+    return data.data
+  }
+
+  const { getRootProps, isPending: isPendingUpload } = useUpload<string>({
+    url: "/upload/image",
+    accept,
+    maxSize,
+    onSuccess,
+  })
 
   return (
     <div className="ml-12 flex w-full flex-col gap-4">
@@ -72,21 +97,42 @@ export default function ProfilePage() {
         <div className="flex flex-col gap-8">
           <div className="flex flex-col gap-4">
             <div className="font-semibold">Profile Image</div>
-            <div className="relative overflow-hidden rounded-full">
-              <Avatar
-                src={user.profile.avatarUrl}
-                className="h-40 w-40 cursor-pointer"
-              />
-              <div className="absolute top-0 flex h-full w-full items-center justify-center hover:bg-[#e4e4e766]"></div>
+            <div
+              {...getRootProps()}
+              className={clsx(
+                "relative h-40 w-40 overflow-hidden rounded-full",
+                {
+                  "border-4 border-dotted border-secondary": isPendingUpload,
+                },
+              )}
+            >
+              {isPendingUpload ? (
+                <LoadingIcon />
+              ) : (
+                <>
+                  <Avatar
+                    src={avatarUrl}
+                    className="h-full w-full cursor-pointer"
+                  />
+                  <div className="absolute top-0 flex h-full w-full cursor-pointer items-center justify-center bg-[#1212120a] opacity-0 transition duration-150 hover:opacity-100">
+                    <Icon icon="tdesign:edit" className="text-3xl text-white" />
+                  </div>
+                </>
+              )}
             </div>
           </div>
           <div className="flex flex-col gap-4">
             <div className="font-semibold">Profile Banner</div>
-            <Avatar
-              radius="lg"
-              src={user.profile.bannerUrl}
-              className="h-40 w-40 cursor-pointer"
-            />
+            <div className="relative overflow-hidden rounded-2xl">
+              <Avatar
+                radius="md"
+                src={user.profile.bannerUrl}
+                className="h-40 w-40 cursor-pointer"
+              />
+              <div className="absolute top-0 flex h-full w-full cursor-pointer items-center justify-center bg-[#1212120a] opacity-0 transition duration-150 hover:opacity-100">
+                <Icon icon="tdesign:edit" className="text-3xl text-white" />
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -37,6 +37,7 @@ export default function Header() {
       <Navbar
         isBordered
         classNames={{
+          base: "py-1",
           wrapper: "max-w-default px-default",
         }}
       >
@@ -176,6 +177,7 @@ export default function Header() {
                   <Icon icon="mingcute:user-4-line" className="text-3xl" />
                 }
                 variant="flat"
+                onPress={disclosureLogin.onOpen}
               />
             )}
           </NavbarItem>
