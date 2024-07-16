@@ -3,7 +3,7 @@ export interface Profile {
   username: string
   avatarUrl: string
   bannerUrl: string
-  bio: any
+  bio: string
 }
 
 export interface User {
