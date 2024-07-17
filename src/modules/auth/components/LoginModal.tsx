@@ -17,6 +17,8 @@ export default function LoginModal({ onClose }: Props) {
   const handleGoogleLogin = useGoogleLogin({
     flow: "auth-code",
     async onSuccess({ code }) {
+      // eslint-disable-next-line no-debugger
+      // debugger
       const data = await googleAuth.mutateAsync({ code })
       console.log(data)
 

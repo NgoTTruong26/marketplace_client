@@ -22,6 +22,7 @@ const defaultUserState: { auth: UserAuth; user: User } = {
       bio: "",
       userId: NaN,
     },
+    walletBalance: 0,
   },
 }
 
