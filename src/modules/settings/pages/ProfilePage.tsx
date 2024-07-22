@@ -18,7 +18,7 @@ import { useUser } from "store/user"
 import * as yup from "yup"
 
 const formSchema = yup.object({
-  username: yup.string().optional(),
+  username: yup.string().required().min(3),
   avatarUrl: yup.string().optional(),
   bannerUrl: yup.string().optional(),
   bio: yup.string().optional(),
@@ -30,7 +30,7 @@ export default function ProfilePage() {
   const [avatarUrl, setAvatarUrl] = useState<string>(user.profile.avatarUrl)
   const [bannerUrl, setBannerUrl] = useState<string>(user.profile.bannerUrl)
 
-  const methods = useForm<Partial<Omit<UpdateProfileRequest, "userId">>>({
+  const methods = useForm<Omit<UpdateProfileRequest, "userId">>({
     defaultValues: {
       username: user.profile.username,
       avatarUrl: user.profile.avatarUrl,

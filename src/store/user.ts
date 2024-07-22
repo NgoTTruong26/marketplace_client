@@ -22,6 +22,14 @@ const defaultUserState: { auth: UserAuth; user: User } = {
       bio: "",
       userId: NaN,
     },
+    walletBalance: NaN,
+    cart: {
+      id: NaN,
+      products: [],
+      totalPrice: NaN,
+      userId: NaN,
+      totalProducts: NaN,
+    },
   },
 }
 

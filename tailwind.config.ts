@@ -16,6 +16,9 @@ const config: Config = {
       padding: {
         default: "64px",
       },
+      margin: {
+        default: "64px",
+      },
     },
   },
   darkMode: "class",

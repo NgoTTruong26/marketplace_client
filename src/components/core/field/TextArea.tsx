@@ -14,7 +14,7 @@ const TextArea = forwardRef(
       return (
         <NextTextArea
           ref={ref}
-          color="primary"
+          color="secondary"
           classNames={{ label: "text-black" }}
           variant="bordered"
           {...props}

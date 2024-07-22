@@ -14,7 +14,7 @@ const Input = forwardRef(
       return (
         <NextInput
           ref={ref}
-          color="primary"
+          color="secondary"
           classNames={{ label: "text-black" }}
           variant="bordered"
           {...props}

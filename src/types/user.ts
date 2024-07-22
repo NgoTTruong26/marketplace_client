@@ -1,3 +1,5 @@
+import { Cart } from "./cart"
+
 export interface Profile {
   userId: number
   username: string
@@ -11,6 +13,7 @@ export interface User {
   email: string
   walletBalance: number
   profile: Profile
+  cart: Cart
 }
 
 export interface UserAuth {
