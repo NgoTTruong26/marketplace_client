@@ -16,8 +16,15 @@ import {
   SelectItem,
 } from "@nextui-org/react"
 import clsx from "clsx"
+import { queryClient } from "configs/queryClient"
+import { useAddProductToCart } from "modules/cart/services/addProductToCart"
+import { useRemoveProductFromCart } from "modules/cart/services/removeProductFromCart"
 import { useGetProductList } from "modules/product/services/getProductList"
+import { useMemo } from "react"
 import { Navigate, useNavigate, useParams } from "react-router-dom"
+import { toast } from "sonner"
+import { useCart } from "store/cart"
+import { useUser } from "store/user"
 import { CollectionParams } from "../route"
 import { useGetCollection } from "../services/getCollection"
 
@@ -27,6 +34,10 @@ export const sortOptions = [
 ]
 
 export default function Collection() {
+  const { user } = useUser()
+
+  const { cart } = useCart()
+
   const { collectionId } = useParams<keyof CollectionParams>()
 
   const navigate = useNavigate()
@@ -37,8 +48,64 @@ export default function Collection() {
 
   const getCollection = useGetCollection(Number(collectionId))
   const getProductList = useGetProductList(Number(collectionId))
+  const addProductToCart = useAddProductToCart()
+  const removeProductFromCart = useRemoveProductFromCart()
 
-  console.log(getProductList.data)
+  const handleAddProductToCart = (productId: number) => {
+    addProductToCart.mutate(
+      {
+        productId,
+      },
+      {
+        onSuccess: () => {
+          queryClient
+            .refetchQueries({
+              queryKey: ["getProductListFromCart"],
+            })
+            .then(() => {
+              // setProductListFromCart(
+              //   queryClient.getQueryData(["getProductListFromCart", user.cart.id]) ||
+              //     [],
+              // )
+              toast.success("Product added successfully!")
+            })
+        },
+      },
+    )
+  }
+  const handleRemoveProductFromCart = (productId: number, cartId: number) => {
+    removeProductFromCart.mutate(
+      {
+        cartId,
+        productId,
+      },
+      {
+        onSuccess: () => {
+          queryClient
+            .refetchQueries({
+              queryKey: ["getProductListFromCart"],
+            })
+            .then(() => {
+              toast.success("Delete product from cart successfully")
+            })
+        },
+      },
+    )
+  }
+
+  const isRemoveProductFromCart = useMemo(
+    () => (productId: number) => {
+      if (cart.cartProducts.length > 0) {
+        return cart.cartProducts.some((productCart) => {
+          return productCart.productId === productId
+        })
+      }
+      return false
+    },
+    [cart],
+  )
+
+  console.log(removeProductFromCart.variables)
 
   return (
     <div className="flex justify-center">
@@ -233,13 +300,28 @@ export default function Collection() {
                                 color="secondary"
                                 isIconOnly
                                 radius="none"
-                                children={
-                                  <Icon
-                                    icon="mdi:cart-outline"
-                                    className="text-2xl"
-                                  />
-                                }
                                 className="px-2"
+                                children={
+                                  isRemoveProductFromCart(product.id) ? (
+                                    <Icon
+                                      icon="mdi:cart-off"
+                                      className="text-2xl"
+                                    />
+                                  ) : (
+                                    <Icon
+                                      icon="mdi:cart-outline"
+                                      className="text-2xl"
+                                    />
+                                  )
+                                }
+                                onClick={(e) => {
+                                  isRemoveProductFromCart(product.id)
+                                    ? handleRemoveProductFromCart(
+                                        product.id,
+                                        user.cart.id,
+                                      )
+                                    : handleAddProductToCart(product.id)
+                                }}
                               />
                             </div>
                           </CardFooter>

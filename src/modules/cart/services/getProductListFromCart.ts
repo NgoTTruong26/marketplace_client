@@ -1,13 +1,13 @@
 import { useQuery } from "@tanstack/react-query"
 import { api } from "configs/api"
-import { Product } from "types/product"
+import { CartProducts } from "types/cartProducts"
 
 export interface GetProductListFromCartRequest {
   cartId: number
 }
 
 export interface GetProductListFromCartResponse {
-  data: Product[]
+  data: CartProducts[]
 }
 
 export async function getProductListFromCart(

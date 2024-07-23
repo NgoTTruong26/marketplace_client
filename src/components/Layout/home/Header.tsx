@@ -24,11 +24,14 @@ import { useCycle } from "framer-motion"
 import LoginModal from "modules/auth/components/LoginModal"
 import WalletModal from "modules/user/components/WalletModal"
 import { Link, useNavigate } from "react-router-dom"
+import { useCart } from "store/cart"
 import { useUser } from "store/user"
 import Cart from "../../../modules/cart/components/Cart"
 
 export default function Header() {
   const { user, clear } = useUser()
+  const { cart } = useCart()
+
   const navigate = useNavigate()
 
   const disclosureLogin = useDisclosure()
@@ -196,14 +199,18 @@ export default function Header() {
                 isIconOnly
                 size="lg"
                 startContent={
-                  <Badge
-                    content="5"
-                    color="primary"
-                    shape="circle"
-                    showOutline={false}
-                  >
+                  cart.cartProducts.length > 0 ? (
+                    <Badge
+                      content={cart.cartProducts.length}
+                      color="primary"
+                      shape="circle"
+                      showOutline={false}
+                    >
+                      <Icon icon="mdi:cart-outline" className="text-2xl" />
+                    </Badge>
+                  ) : (
                     <Icon icon="mdi:cart-outline" className="text-2xl" />
-                  </Badge>
+                  )
                 }
                 variant="flat"
                 onClick={() => {

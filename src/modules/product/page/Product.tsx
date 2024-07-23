@@ -105,22 +105,26 @@ export default function Product() {
                       value={quantity.toString()}
                       onChange={(e) => setQuantity(Number(e.target.value))} // Cập nhật state khi giá trị input thay đổi
                       startContent={
-                        <Icon
-                          icon="ic:round-minus"
-                          className="cursor-pointer text-xl"
-                          onClick={() =>
-                            setQuantity((prevs) =>
-                              prevs - 1 > 0 ? prevs - 1 : 0,
-                            )
-                          }
-                        />
+                        <button className="flex items-center">
+                          <Icon
+                            icon="ic:round-minus"
+                            className="cursor-pointer text-xl"
+                            onClick={() =>
+                              setQuantity((prevs) =>
+                                prevs - 1 > 0 ? prevs - 1 : 0,
+                              )
+                            }
+                          />
+                        </button>
                       }
                       endContent={
-                        <Icon
-                          icon="ic:round-plus"
-                          className="cursor-pointer text-xl"
-                          onClick={() => setQuantity((prevs) => prevs + 1)}
-                        />
+                        <button className="flex items-center">
+                          <Icon
+                            icon="ic:round-plus"
+                            className="cursor-pointer text-xl"
+                            onClick={() => setQuantity((prevs) => prevs + 1)}
+                          />
+                        </button>
                       }
                       className="max-w-52"
                       classNames={{
