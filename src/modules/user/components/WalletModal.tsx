@@ -1,9 +1,18 @@
 import { Icon } from "@iconify-icon/react/dist/iconify.mjs"
-import { Button, ModalBody } from "@nextui-org/react"
+import {
+  Button,
+  Modal,
+  ModalBody,
+  ModalContent,
+  useDisclosure,
+} from "@nextui-org/react"
 import { useUser } from "store/user"
+import RechargeModal from "./RechargeModal"
 
 export default function WalletModal() {
   const { user } = useUser()
+
+  const disclosureRecharge = useDisclosure()
 
   return (
     <>
@@ -21,6 +30,7 @@ export default function WalletModal() {
             color="secondary"
             isIconOnly
             startContent={<Icon icon="ic:round-plus" className="text-2xl" />}
+            onPress={disclosureRecharge.onOpen}
           />
         </div>
         <div className="flex flex-col items-center justify-center gap-4">
@@ -96,6 +106,17 @@ export default function WalletModal() {
           </div>
         </div>
       </ModalBody>
+
+      <Modal
+        size="md"
+        isOpen={disclosureRecharge.isOpen}
+        onClose={disclosureRecharge.onClose}
+        className="p-4"
+      >
+        <ModalContent>
+          {(onClose) => <RechargeModal onClose={onClose} />}
+        </ModalContent>
+      </Modal>
     </>
   )
 }

@@ -3,7 +3,9 @@ import { api } from "configs/api"
 import { Cart } from "types/cart"
 
 export interface AddProductToCartRequest {
+  cartId: number
   productId: number
+  quantity?: number
 }
 export interface AddProductToCartResponse extends Cart {}
 

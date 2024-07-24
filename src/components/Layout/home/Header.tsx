@@ -30,7 +30,7 @@ import Cart from "../../../modules/cart/components/Cart"
 
 export default function Header() {
   const { user, clear } = useUser()
-  const { cart } = useCart()
+  const { cart, clear: clearCart } = useCart()
 
   const navigate = useNavigate()
 
@@ -50,18 +50,22 @@ export default function Header() {
           }}
         >
           <NavbarContent justify="start" className="!flex-grow-0 gap-0">
-            {/* <NavbarMenuToggle
-        aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-        className="sm:hidden"
-      /> */}
             <NavbarBrand as={Link} to={"/"} className="cursor-pointer">
               <Logo />
               <p className="pl-3 font-bold text-inherit">MARKETPLACE</p>
             </NavbarBrand>
             <div className="flex items-center">
               <Divider orientation="vertical" className="mx-4 h-8" />
-              <NavbarItem isActive>
-                <Link color="foreground" to="#">
+              <NavbarItem>
+                <Link
+                  color="foreground"
+                  to="#"
+                  onClick={() => {
+                    if (!user.email) {
+                      return disclosureLogin.onOpen()
+                    }
+                  }}
+                >
                   Create
                 </Link>
               </NavbarItem>
@@ -173,8 +177,9 @@ export default function Header() {
                           />
                         }
                         onClick={() => {
-                          queryClient.clear()
                           clear()
+                          clearCart()
+                          queryClient.clear()
                         }}
                       >
                         Logout
@@ -214,6 +219,9 @@ export default function Header() {
                 }
                 variant="flat"
                 onClick={() => {
+                  if (!user.email) {
+                    return disclosureLogin.onOpen()
+                  }
                   cycleOpen()
                   document.body.style.overflow = "hidden"
                 }}

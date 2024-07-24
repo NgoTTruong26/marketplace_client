@@ -2,6 +2,7 @@ import { Icon } from "@iconify-icon/react/dist/iconify.mjs"
 import { Button, ModalBody, ModalHeader } from "@nextui-org/react"
 import { useGoogleLogin } from "@react-oauth/google"
 import Logo from "components/common/Logo"
+import { queryClient } from "configs/queryClient"
 import { toast } from "sonner"
 import { useUser } from "store/user"
 import { useGoogleAuth } from "../services/googleLogin"
@@ -17,14 +18,18 @@ export default function LoginModal({ onClose }: Props) {
   const handleGoogleLogin = useGoogleLogin({
     flow: "auth-code",
     async onSuccess({ code }) {
-      const data = await googleAuth.mutateAsync({ code })
-      console.log(data)
-
-      user.setAuth({
-        accessToken: data.accessToken,
-      })
-      console.log(data.user)
-      user.setUser(data.user)
+      await googleAuth.mutateAsync(
+        { code },
+        {
+          onSuccess(data) {
+            queryClient.clear()
+            user.setAuth({
+              accessToken: data.accessToken,
+            })
+            user.setUser(data.user)
+          },
+        },
+      )
 
       onClose()
     },
@@ -50,6 +55,7 @@ export default function LoginModal({ onClose }: Props) {
             <Icon icon="flat-color-icons:google" className="text-4xl" />
           }
           onPress={() => handleGoogleLogin()}
+          isLoading={googleAuth.isPending}
         />
       </ModalBody>
     </>

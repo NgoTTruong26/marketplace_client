@@ -1,14 +1,16 @@
 import { Icon } from "@iconify-icon/react/dist/iconify.mjs"
-import { Avatar, Button, Input } from "@nextui-org/react"
+import { Avatar, Button, Input, Tooltip } from "@nextui-org/react"
 import clsx from "clsx"
 import { queryClient } from "configs/queryClient"
 import { AnimatePresence, Cycle, Variants, motion } from "framer-motion"
-import { useEffect } from "react"
+import debounce from "lodash.debounce"
+import { useCallback, useEffect } from "react"
 import { Controller, useFieldArray, useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { useCart } from "store/cart"
 import { useUser } from "store/user"
 import { CartProducts } from "types/cartProducts"
+import { useChangeQuantityProductFromCart } from "../services/changeQuantityProductFromCart"
 import { useGetProductListFromCart } from "../services/getProductListFromCart"
 import { useRemoveProductFromCart } from "../services/removeProductFromCart"
 
@@ -39,6 +41,7 @@ export default function Cart({ open, cycleOpen }: Props) {
 
   const getProductListFromCart = useGetProductListFromCart(user.cart.id)
   const removeProductFromCart = useRemoveProductFromCart()
+  const changeQuantityProductFromCart = useChangeQuantityProductFromCart()
 
   const methods = useForm({
     defaultValues: {
@@ -51,9 +54,20 @@ export default function Cart({ open, cycleOpen }: Props) {
     name: "products",
   })
 
-  const onSubmit = (data: any) => {
-    console.log(data)
-  }
+  const debouncedQuantity = useCallback(
+    debounce((index: number, productId: number, cartId: number) => {
+      changeQuantityProductFromCart.mutate({
+        quantity: methods.watch(`products.${index}.quantity`),
+        productId,
+        cartId,
+      })
+    }, 500),
+    [],
+  )
+
+  useEffect(() => {
+    debouncedQuantity.cancel()
+  }, [debouncedQuantity])
 
   const increaseQuantity = (index: number, currentQuantity: number) => {
     methods.setValue(`products.${index}.quantity`, Number(currentQuantity) + 1)
@@ -107,6 +121,10 @@ export default function Cart({ open, cycleOpen }: Props) {
     )
   }
 
+  const onSubmit = (data: any) => {
+    console.log(data)
+  }
+
   useEffect(() => {
     if (getProductListFromCart.data) {
       methods.reset({ products: getProductListFromCart.data })
@@ -115,8 +133,6 @@ export default function Cart({ open, cycleOpen }: Props) {
       })
     }
   }, [getProductListFromCart.data])
-
-  console.log(cart, "cart")
 
   return (
     <form onSubmit={methods.handleSubmit(onSubmit)}>
@@ -174,7 +190,7 @@ export default function Cart({ open, cycleOpen }: Props) {
                       </div>
                     </div>
                     <div className="flex h-full flex-col gap-5 overflow-y-auto pr-2 pt-2">
-                      {fields.map((cartProduct, idx) => (
+                      {cart.cartProducts.map((cartProduct, idx) => (
                         <div
                           key={idx}
                           className="relative flex items-center gap-5 text-sm"
@@ -216,9 +232,14 @@ export default function Cart({ open, cycleOpen }: Props) {
                                   color="secondary"
                                   defaultValue={cartProduct.quantity.toString()}
                                   value={field.value.toString()}
-                                  onChange={(e) =>
-                                    handleQuantityChange(idx, e.target.value)
-                                  }
+                                  onValueChange={(value) => {
+                                    handleQuantityChange(idx, value)
+                                    debouncedQuantity(
+                                      idx,
+                                      cartProduct.productId,
+                                      cartProduct.cartId,
+                                    )
+                                  }}
                                   className="max-w-44"
                                   classNames={{
                                     input: "text-center",
@@ -228,9 +249,14 @@ export default function Cart({ open, cycleOpen }: Props) {
                                       <Icon
                                         icon="ic:round-minus"
                                         className="cursor-pointer text-xl"
-                                        onClick={() =>
+                                        onClick={() => {
                                           decreaseQuantity(idx, field.value)
-                                        }
+                                          debouncedQuantity(
+                                            idx,
+                                            cartProduct.productId,
+                                            cartProduct.cartId,
+                                          )
+                                        }}
                                       />
                                     </button>
                                   }
@@ -239,9 +265,14 @@ export default function Cart({ open, cycleOpen }: Props) {
                                       <Icon
                                         icon="ic:round-plus"
                                         className="cursor-pointer text-xl"
-                                        onClick={() =>
+                                        onClick={() => {
                                           increaseQuantity(idx, field.value)
-                                        }
+                                          debouncedQuantity(
+                                            idx,
+                                            cartProduct.productId,
+                                            cartProduct.cartId,
+                                          )
+                                        }}
                                       />
                                     </button>
                                   }
@@ -280,14 +311,33 @@ export default function Cart({ open, cycleOpen }: Props) {
                 </div>
               </div>
               <div className="px-5 pb-10">
-                <Button
-                  type="submit"
-                  size="lg"
-                  color="secondary"
-                  className="w-full"
-                >
-                  Complete purchase
-                </Button>
+                {totalPrice() > Number(user.walletBalance) ? (
+                  <Tooltip
+                    size="lg"
+                    content="You don't have enough money to buy."
+                    color="danger"
+                  >
+                    <div className="cursor-pointer">
+                      <Button
+                        isDisabled
+                        size="lg"
+                        color="secondary"
+                        className="w-full"
+                      >
+                        Complete purchase
+                      </Button>
+                    </div>
+                  </Tooltip>
+                ) : (
+                  <Button
+                    type="submit"
+                    size="lg"
+                    color="secondary"
+                    className="w-full"
+                  >
+                    Complete purchase
+                  </Button>
+                )}
               </div>
             </motion.div>
           </motion.aside>
