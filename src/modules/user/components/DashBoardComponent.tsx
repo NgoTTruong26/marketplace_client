@@ -82,7 +82,7 @@ const AdminDashboard = () => {
         })
     })
 
-    // setEditingCollection(null)
+    setEditingCollection(null)
   }
   const handleFormProductSubmit = async (
     e: React.FormEvent<HTMLFormElement>,
@@ -99,7 +99,7 @@ const AdminDashboard = () => {
         })
     })
 
-    // setEditingCollection(null)
+    setEditingProduct(null)
   }
 
   const handleInputCollectionChange = (e: any) => {
