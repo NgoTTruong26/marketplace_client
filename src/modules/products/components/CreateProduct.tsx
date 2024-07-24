@@ -1,65 +1,60 @@
 import * as yup from "yup"
 import { FormProvider, useForm } from "react-hook-form"
 import { yupResolver } from "@hookform/resolvers/yup"
-import {
-  createCollection,
-  createCollectionDTO,
-} from "../services/createCollection.ts"
 import { Button, SelectItem } from "@nextui-org/react"
 import Field from "../../../components/core/field"
-import { Category } from "../../../types/category.ts"
-import useGetCategories from "../../categories/services/getCategories.ts"
 import { useState } from "react"
+import { createProduct, createProductDTO } from "../services/createProduct.ts"
 import { toast } from "sonner"
+import useGetCollectionCreated from "modules/collections/services/GetCollectionIsCreated.ts"
+import { Collection } from "types/collection.ts"
+import { CiSquarePlus } from "react-icons/ci"
+import { useNavigate } from "react-router-dom"
 
 const formSchema = yup.object({
   name: yup.string().required().min(3),
-  floor_price: yup.number().required().min(1),
+  price: yup.number().required().min(1),
   description: yup.string().required().min(3),
-  total_volume: yup.number().required().min(1),
-  category_id: yup.number().required(),
+  quantity: yup.number().required().min(1),
+  collection_id: yup.number().required(),
 })
 
-export default function CreateCollectionsComponent() {
-  const methods = useForm<createCollectionDTO>({
+export default function CreateProductComponent() {
+  const methods = useForm<createProductDTO>({
     resolver: yupResolver(formSchema),
     mode: "onChange",
   })
 
   const [imageUrl, setImageUrl] = useState<string | null>("")
-  const [bannerUrl, setBannerUrl] = useState<string | null>("")
+
   const [isImageUploaded, setIsImageUploaded] = useState(false)
-  const [isBannerUploaded, setIsBannerUploaded] = useState(false)
 
-  const getCategory = useGetCategories()
+  const listCollectionCreated = useGetCollectionCreated("1")
+  const collectionsCreated = listCollectionCreated.data?.collections
+
   const [imageFile, setImage] = useState<File | null>(null)
-
-  const [bannerFile, setBannerFile] = useState<File | null>(null)
-  // const { user, clear } = useUser()
+  const navigate = useNavigate()
 
   console.log(methods.watch())
 
-  const onSubmit = async (data: createCollectionDTO) => {
+  const onSubmit = async (data: createProductDTO) => {
     console.log(data)
     const formData = new FormData()
     formData.append("name", data.name || "")
-    formData.append("floor_price", data.floor_price.toString())
+    formData.append("price", data.price.toString())
     formData.append("description", data.description)
-    formData.append("total_volume", data.total_volume.toString() || "")
-    formData.append("category_id", data.category_id.toString() || "")
-    formData.append("created_by_user_id", "1")
+    formData.append("quantity", data.quantity.toString() || "")
+    formData.append("collection_id", data.collection_id.toString() || "")
 
     if (imageFile) {
-      formData.append("images", imageFile)
+      formData.append("image", imageFile)
     }
+    console.log(formData)
 
-    if (bannerFile) {
-      formData.append("banner", bannerFile)
-    }
-    await createCollection(formData).then((response) => {
-      toast.success(response.messages)
+    await createProduct(formData).then((res) => {
+      console.log(res)
+      toast.success("Product created successfully")
     })
-    // toast.success(response.message)
   }
   const handelImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (isImageUploaded) {
@@ -78,37 +73,19 @@ export default function CreateCollectionsComponent() {
       reader.readAsDataURL(file)
     }
   }
-  const handleBannerChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (isBannerUploaded) {
-      alert("You can only upload one banner")
-      return
-    }
-    const file = event.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onload = () => {
-        setBannerUrl(reader.result as string)
-        setBannerFile(file)
-        setIsBannerUploaded(true)
-      }
-
-      reader.readAsDataURL(file)
-    }
-  }
   const handleRemoveImage = () => {
     setImageUrl(null)
     setIsImageUploaded(false)
   }
-  const handleRemoveBanner = () => {
-    setBannerUrl(null)
-    setIsBannerUploaded(false)
+  const handleClickNavigate = () => {
+    navigate("/create-collections")
   }
   return (
     <>
       <FormProvider {...methods}>
         <form onSubmit={methods.handleSubmit(onSubmit)}>
           <div className="mx-auto flex w-full items-center justify-center border-t-4 pb-2 pt-6 text-xl">
-            Create Collection
+            Create Product
           </div>
           <div className="flex items-center justify-center">
             <div className="mx-auto flex max-w-4xl flex-col">
@@ -138,25 +115,25 @@ export default function CreateCollectionsComponent() {
                           />
                         </div>
                         <div className="flex flex-col gap-2">
-                          <div className="font-semibold">Floor Price</div>
+                          <div className="font-semibold">Price</div>
                           <Field
                             t="input"
                             type="number"
-                            name="floor_price"
+                            name="price"
                             size="lg"
                             variant="bordered"
-                            placeholder="Enter the floor price"
+                            placeholder="Enter the  price"
                           />
                         </div>
                         <div className="flex flex-col gap-2">
-                          <div className="font-semibold">Total volume</div>
+                          <div className="font-semibold">Quantity</div>
                           <Field
                             t="input"
                             type="number"
-                            name="total_volume"
+                            name="quantity"
                             size="lg"
                             variant="bordered"
-                            placeholder="Enter the total-volume"
+                            placeholder="Enter the quantity"
                           />
                         </div>
                       </div>
@@ -203,67 +180,38 @@ export default function CreateCollectionsComponent() {
                         You may change this after deploying your contract.
                       </p>
                     </div>
-                    <div className="flex flex-col items-center rounded-lg border p-4">
-                      <label className="mb-2 block text-sm font-bold text-gray-700">
-                        Banner <span className="text-gray-500">(i)</span>
-                      </label>
-                      <div className="relative flex w-full flex-col items-start justify-center rounded-lg border-2 border-dashed border-gray-400 p-4">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="absolute h-full w-full cursor-pointer opacity-0"
-                          onChange={handleBannerChange}
-                        />
-                        {bannerUrl ? (
-                          <img
-                            src={bannerUrl}
-                            className="image max-w-[100px]"
-                            alt="preview"
-                          />
-                        ) : null}
-                        {bannerUrl ? (
-                          <svg
-                            className="absolute right-4 top-1/2 h-8 w-8 -translate-y-1/2 transform"
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="1em"
-                            height="1em"
-                            viewBox="0 0 24 24"
-                            onClick={handleRemoveBanner}
-                          >
-                            <path
-                              fill="currentColor"
-                              d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6z"
-                            ></path>
-                          </svg>
-                        ) : null}
-                      </div>
-
-                      <p className="mt-2 text-xs text-gray-500">
-                        You may change this after deploying your contract.
-                      </p>
-                    </div>
                     <div className="flex flex-col gap-2">
-                      <div className="font-semibold">Category</div>
+                      <div className="font-semibold">Collection</div>
+                      <div className="flex items-center space-x-2">
+                        <button
+                          className="mt-6 flex h-10 items-center justify-center border border-gray-300 p-4"
+                          onClick={handleClickNavigate}
+                        >
+                          <CiSquarePlus />
+                        </button>
 
-                      <Field
-                        t="select"
-                        name="category_id"
-                        items={getCategory.data || []}
-                        label="Category"
-                        placeholder="Select an category"
-                        className="max-w-xs"
-                        options={
-                          getCategory.data?.map((category: Category) => ({
-                            label: category.name,
-                            value: category.id,
-                          })) || []
-                        }
-                      />
-                      {getCategory.data?.map((category: Category) => (
-                        <SelectItem key={category.id} value={category.id}>
-                          {category.name}
-                        </SelectItem>
-                      ))}
+                        <Field
+                          t="select"
+                          name="collection_id"
+                          items={collectionsCreated || []}
+                          label="Collection"
+                          placeholder="Select a Collection"
+                          className="h-10 max-w-xs"
+                          options={
+                            collectionsCreated?.map(
+                              (collection: Collection) => ({
+                                label: collection.name,
+                                value: collection.id,
+                              }),
+                            ) || []
+                          }
+                        />
+                        {collectionsCreated?.map((collection: Collection) => (
+                          <SelectItem key={collection.id} value={collection.id}>
+                            {collection.name}
+                          </SelectItem>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>

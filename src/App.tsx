@@ -8,23 +8,21 @@ import { Toaster } from "sonner"
 import PageLoading from "./components/common/PageLoading"
 import { queryClient } from "./configs/queryClient"
 import Routes from "./routes"
-import CreateCollections from "./modules/collections/components/CreateCollections.tsx"
 
 export default function App() {
   return (
-    // <BrowserRouter>
-    //   <NextUIProvider>
-    //     <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
-    //       <QueryClientProvider client={queryClient}>
-    //         <Suspense fallback={<PageLoading />}>
-    //           <Routes />
-    //         </Suspense>
-    //         <ReactQueryDevtools />
-    //         <Toaster position="top-right" richColors />
-    //       </QueryClientProvider>
-    //     </GoogleOAuthProvider>
-    //   </NextUIProvider>
-    // </BrowserRouter>
-    <CreateCollections />
+    <BrowserRouter>
+      <NextUIProvider>
+        <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+          <QueryClientProvider client={queryClient}>
+            <Suspense fallback={<PageLoading />}>
+              <Routes />
+            </Suspense>
+            <ReactQueryDevtools />
+            <Toaster position="top-right" richColors />
+          </QueryClientProvider>
+        </GoogleOAuthProvider>
+      </NextUIProvider>
+    </BrowserRouter>
   )
 }
