@@ -1,27 +1,27 @@
+import { queryClient } from "configs/queryClient"
+import { deleteCollection } from "modules/collections/services/deleteCollection"
+import { updateCollection } from "modules/collections/services/updateCollection"
+import { deleteProduct } from "modules/products/services/deleteProduct"
+import { updateProduct } from "modules/products/services/updateProduct"
+import { useState } from "react"
 import {
-  FaUsers,
   FaBoxOpen,
   FaEdit,
-  FaTrash,
-  FaShoppingCart,
   FaEye,
+  FaShoppingCart,
+  FaTrash,
+  FaUsers,
 } from "react-icons/fa"
-import "./style/App.css"
-import "./style/collectionForm.css"
-import { useState } from "react"
-import useGetProductCreated from "../services/GetProductIsCreated"
+import { toast } from "sonner"
+import { collectionEdit } from "types/collectionEdit"
+import { Product } from "types/product"
 import useGetCollectionCreated from "../../collections/services/GetCollectionIsCreated"
 import useGetOrderByUser from "../services/GetOrderByUser"
-import { Collection } from "types/collection"
-import { updateCollection } from "modules/collections/services/updateCollection"
-import { toast } from "sonner"
-import { queryClient } from "configs/queryClient"
+import useGetProductCreated from "../services/GetProductIsCreated"
 import EditCollectionComponent from "./EditCollectionComponent"
-import { Product } from "types/product"
 import EditProductComponent from "./EditProductComponent"
-import { updateProduct } from "modules/products/services/updateProduct"
-import { deleteProduct } from "modules/products/services/deleteProduct"
-import { deleteCollection } from "modules/collections/services/deleteCollection"
+import "./style/App.css"
+import "./style/collectionForm.css"
 
 const AdminDashboard = () => {
   const listProductCreated = useGetProductCreated("1")
@@ -58,7 +58,7 @@ const AdminDashboard = () => {
     })
   }
 
-  const handleEditCollectionClick = (collection: Collection) => {
+  const handleEditCollectionClick = (collection: collectionEdit) => {
     setEditingCollection(collection.id)
     setUpdatedCollection({
       name: collection.name,

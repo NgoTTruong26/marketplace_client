@@ -1,6 +1,6 @@
-import { Collection } from "../../../types/collection..ts"
-import { api } from "../../../configs/api.ts"
 import { useMutation } from "@tanstack/react-query"
+import { collectionEdit } from "types/collectionEdit.ts"
+import { api } from "../../../configs/api.ts"
 
 export interface createCollectionDTO {
   name: string
@@ -12,7 +12,7 @@ export interface createCollectionDTO {
 
 export interface CollectionCreatedResponse {
   messages: string
-  data: Collection
+  data: collectionEdit
 }
 
 export async function createCollection(data: FormData) {
