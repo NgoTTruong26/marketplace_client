@@ -3,9 +3,12 @@ import HeaderLayout from "components/Layout/HeaderLayout"
 import MainLayout from "components/Layout/home"
 import { navPaths } from "constants/nav"
 import { collectionRoute } from "modules/collection/route"
+import CreateCollectionsComponent from "modules/collections/components/CreateCollections"
 import { homeRoute } from "modules/home/route"
 import { productRoute } from "modules/product/route"
+import CreateProductComponent from "modules/products/components/CreateProduct"
 import { settingsRoute } from "modules/settings/route"
+import AdminDashboard from "modules/user/components/DashBoardComponent"
 import { lazy } from "react"
 import { Navigate, useRoutes } from "react-router-dom"
 
@@ -36,6 +39,18 @@ export default function Routes() {
     {
       path: "*",
       element: <Navigate to={navPaths.home} />,
+    },
+    {
+      path: "/create-products",
+      element: <CreateProductComponent />,
+    },
+    {
+      path: "/create-collections",
+      element: <CreateCollectionsComponent />,
+    },
+    {
+      path: "/dashboard",
+      element: <AdminDashboard />,
     },
   ])
   return element

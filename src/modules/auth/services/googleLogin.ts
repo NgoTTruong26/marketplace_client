@@ -12,10 +12,14 @@ export interface GoogleAuthResponse {
 }
 
 async function googleAuth(data: GoogleAuthRequest) {
+  // eslint-disable-next-line no-debugger
+  // debugger
   return (await api.post<GoogleAuthResponse>("/auth/user/google", data)).data
 }
 
 export function useGoogleAuth() {
+  // eslint-disable-next-line no-debugger
+  // debugger
   return useMutation({
     mutationFn: googleAuth,
   })
