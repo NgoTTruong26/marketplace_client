@@ -3,7 +3,6 @@ import HeaderLayout from "components/Layout/HeaderLayout"
 import MainLayout from "components/Layout/home"
 import { navPaths } from "constants/nav"
 import { collectionRoute } from "modules/collection/route"
-import CreateCollectionsComponent from "modules/collections/components/CreateCollections"
 import { homeRoute } from "modules/home/route"
 import { productRoute } from "modules/product/route"
 import CreateProductComponent from "modules/products/components/CreateProduct"
@@ -43,10 +42,6 @@ export default function Routes() {
     {
       path: "/create-products",
       element: <CreateProductComponent />,
-    },
-    {
-      path: "/create-collections",
-      element: <CreateCollectionsComponent />,
     },
     {
       path: "/dashboard",

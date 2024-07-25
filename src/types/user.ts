@@ -1,6 +1,7 @@
 import { Cart } from "./cart"
 
 export interface Profile {
+  id: number
   userId: number
   username: string
   avatarUrl: string

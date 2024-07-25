@@ -1,16 +1,17 @@
-import * as yup from "yup"
-import { FormProvider, useForm } from "react-hook-form"
 import { yupResolver } from "@hookform/resolvers/yup"
+import { Button, SelectItem } from "@nextui-org/react"
+import { useState } from "react"
+import { FormProvider, useForm } from "react-hook-form"
+import { toast } from "sonner"
+import { useUser } from "store/user.ts"
+import * as yup from "yup"
+import Field from "../../../components/core/field"
+import { Category } from "../../../types/category.ts"
+import useGetCategories from "../../categories/services/getCategories.ts"
 import {
   createCollection,
   createCollectionDTO,
 } from "../services/createCollection.ts"
-import { Button, SelectItem } from "@nextui-org/react"
-import Field from "../../../components/core/field"
-import { Category } from "../../../types/category.ts"
-import useGetCategories from "../../categories/services/getCategories.ts"
-import { useState } from "react"
-import { toast } from "sonner"
 
 const formSchema = yup.object({
   name: yup.string().required().min(3),
@@ -21,6 +22,8 @@ const formSchema = yup.object({
 })
 
 export default function CreateCollectionsComponent() {
+  const { user } = useUser()
+
   const methods = useForm<createCollectionDTO>({
     resolver: yupResolver(formSchema),
     mode: "onChange",
@@ -47,7 +50,8 @@ export default function CreateCollectionsComponent() {
     formData.append("description", data.description)
     formData.append("total_volume", data.total_volume.toString() || "")
     formData.append("category_id", data.category_id.toString() || "")
-    formData.append("created_by_user_id", "1")
+    formData.append("created_by_user_id", user.id.toString())
+    formData.append("profile_id", user.profile.id.toString())
 
     if (imageFile) {
       formData.append("images", imageFile)
@@ -106,12 +110,15 @@ export default function CreateCollectionsComponent() {
   return (
     <>
       <FormProvider {...methods}>
-        <form onSubmit={methods.handleSubmit(onSubmit)}>
-          <div className="mx-auto flex w-full items-center justify-center border-t-4 pb-2 pt-6 text-xl">
+        <form
+          className="w-full pt-20"
+          onSubmit={methods.handleSubmit(onSubmit)}
+        >
+          <div className="mx-auto flex w-full items-center justify-center pb-2 pt-6 text-xl">
             Create Collection
           </div>
           <div className="flex items-center justify-center">
-            <div className="mx-auto flex max-w-4xl flex-col">
+            <div className="flex max-w-4xl flex-col">
               <div className="flex">
                 <div className="pr-4">
                   <div className="ml-12 flex w-full flex-col gap-4">

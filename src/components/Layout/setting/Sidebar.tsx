@@ -5,7 +5,7 @@ import { Link, useLocation } from "react-router-dom"
 
 enum TitleSidebar {
   PROFILE = "Profile",
-  FEATURED_ITEMS = "Featured Items",
+  CREATE_COLLECTION = "Create Collection",
   NOTIFICATIONS = "Notifications",
   OFFERS = "Offers",
   ACCOUNT_SUPPORT = "Account Support",
@@ -14,7 +14,7 @@ enum TitleSidebar {
 
 enum KeySidebar {
   PROFILE = "profile",
-  FEATURED_ITEMS = "#",
+  CREATE_COLLECTION = "create-collections",
   NOTIFICATIONS = "#",
   OFFERS = "#",
   ACCOUNT_SUPPORT = "#",
@@ -23,7 +23,7 @@ enum KeySidebar {
 
 enum IconSidebar {
   PROFILE = "mingcute:user-4-line",
-  FEATURED_ITEMS = "material-symbols:tab-group-outline-rounded",
+  CREATE_COLLECTION = "material-symbols:tab-group-outline-rounded",
   NOTIFICATIONS = "mi:notification",
   OFFERS = "ic:outline-local-offer",
   ACCOUNT_SUPPORT = "mdi:shield-outline",
@@ -37,9 +37,9 @@ const sideBar = [
     icon: IconSidebar.PROFILE,
   },
   {
-    title: TitleSidebar.FEATURED_ITEMS,
-    key: KeySidebar.FEATURED_ITEMS,
-    icon: IconSidebar.FEATURED_ITEMS,
+    title: TitleSidebar.CREATE_COLLECTION,
+    key: KeySidebar.CREATE_COLLECTION,
+    icon: IconSidebar.CREATE_COLLECTION,
   },
   {
     title: TitleSidebar.NOTIFICATIONS,

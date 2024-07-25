@@ -57,17 +57,18 @@ export default function Header() {
             <div className="flex items-center">
               <Divider orientation="vertical" className="mx-4 h-8" />
               <NavbarItem>
-                <Link
+                <div
                   color="foreground"
-                  to="#"
+                  className="cursor-pointer"
                   onClick={() => {
                     if (!user.email) {
                       return disclosureLogin.onOpen()
                     }
+                    navigate("settings/create-collections")
                   }}
                 >
                   Create
-                </Link>
+                </div>
               </NavbarItem>
             </div>
           </NavbarContent>
