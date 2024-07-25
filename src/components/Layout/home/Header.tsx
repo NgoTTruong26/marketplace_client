@@ -104,7 +104,7 @@ export default function Header() {
                   className="font-semibold"
                   onPress={disclosureWallet.onOpen}
                 >
-                  {Math.round(user.walletBalance) + " "} USD
+                  {Math.round(user.walletBalance).toLocaleString("de-DE")} USD
                 </Button>
               ) : (
                 <Button
