@@ -14,4 +14,5 @@ export interface Collection {
   profile: Profile
   category: Category
   createdAt: Date
+  totalProducts: number
 }

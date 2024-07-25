@@ -20,9 +20,10 @@ export async function getProductListFromCart(
   ).data.data
 }
 
-export function useGetProductListFromCart(cartId: number) {
+export function useGetProductListFromCart(cartId: number, enabled?: boolean) {
   return useQuery({
     queryKey: ["getProductListFromCart", cartId],
     queryFn: async () => await getProductListFromCart({ cartId }),
+    enabled,
   })
 }

@@ -6,6 +6,7 @@ import { BaseGetList, PageParam } from "types/getList"
 export interface GetCollectionListRequest {
   limit?: number
   page: number
+  keyword?: string
 }
 
 export interface GetCollectionListResponse extends BaseGetList {
@@ -20,14 +21,19 @@ export async function getCollectionList(params: GetCollectionListRequest) {
   ).data
 }
 
-export function useGetCollectionList(limit?: number, enabled?: boolean) {
+export function useGetCollectionList(
+  limit?: number,
+  keyword?: string,
+  enabled?: boolean,
+) {
   return useInfiniteQuery({
-    queryKey: ["getCollectionList", limit],
+    queryKey: ["getCollectionList", limit, keyword],
 
     queryFn: async ({ pageParam }) =>
       await getCollectionList({
         limit: limit ?? 12,
         page: pageParam.page,
+        keyword,
       }),
 
     initialPageParam: {

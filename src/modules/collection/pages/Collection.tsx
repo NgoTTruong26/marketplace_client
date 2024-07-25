@@ -24,7 +24,8 @@ import LoginModal from "modules/auth/components/LoginModal"
 import { useAddProductToCart } from "modules/cart/services/addProductToCart"
 import { useRemoveProductFromCart } from "modules/cart/services/removeProductFromCart"
 import { useGetProductList } from "modules/product/services/getProductList"
-import { useMemo } from "react"
+import { useEffect, useMemo } from "react"
+import { useInView } from "react-intersection-observer"
 import { Navigate, useNavigate, useParams } from "react-router-dom"
 import { toast } from "sonner"
 import { useCart } from "store/cart"
@@ -45,6 +46,7 @@ export default function Collection() {
   const { collectionId } = useParams<keyof CollectionParams>()
 
   const navigate = useNavigate()
+  const { ref, inView } = useInView()
 
   if (!collectionId || !Number(collectionId)) {
     return <Navigate to="/" />
@@ -107,6 +109,12 @@ export default function Collection() {
     },
     [cart],
   )
+
+  useEffect(() => {
+    if (inView) {
+      getProductList.fetchNextPage()
+    }
+  }, [getProductList.fetchNextPage, inView])
 
   return (
     <>
@@ -179,7 +187,7 @@ export default function Collection() {
                 <Divider />
               </div>
               <div className="sticky top-16 z-20 flex w-full items-center gap-5 bg-background/70 px-default py-3 pt-5 backdrop-blur-xl">
-                <div>100 results</div>
+                <div>{getCollection.data?.totalProducts} results</div>
                 <div className="flex h-full w-full flex-1 gap-5">
                   <Input
                     size="lg"
@@ -342,6 +350,8 @@ export default function Collection() {
                         ))}
                       </div>
                     ))}
+
+                  {getProductList.hasNextPage && <div ref={ref}></div>}
                 </div>
               </div>
             </div>

@@ -52,7 +52,10 @@ export default function Cart({ open, cycleOpen }: Props) {
 
   const disclosureDialogPaymentConfirm = useDisclosure()
 
-  const getProductListFromCart = useGetProductListFromCart(user.cart.id)
+  const getProductListFromCart = useGetProductListFromCart(
+    user.cart.id,
+    !!user.cart.id,
+  )
   const removeProductFromCart = useRemoveProductFromCart()
   const changeQuantityProductFromCart = useChangeQuantityProductFromCart()
   const createOrder = useCreateOrder()

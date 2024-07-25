@@ -9,7 +9,6 @@ import {
   DropdownMenu,
   DropdownSection,
   DropdownTrigger,
-  Input,
   Modal,
   ModalContent,
   Navbar,
@@ -22,6 +21,7 @@ import Logo from "components/common/Logo"
 import { queryClient } from "configs/queryClient"
 import { useCycle } from "framer-motion"
 import LoginModal from "modules/auth/components/LoginModal"
+import SearchCollectionModal from "modules/collection/components/SearchCollectionModal"
 import WalletModal from "modules/user/components/WalletModal"
 import { Link, useNavigate } from "react-router-dom"
 import { useCart } from "store/cart"
@@ -36,6 +36,7 @@ export default function Header() {
 
   const disclosureLogin = useDisclosure()
   const disclosureWallet = useDisclosure()
+  const disclosureSearchCollection = useDisclosure()
 
   const [open, cycleOpen] = useCycle(false, true)
 
@@ -78,19 +79,21 @@ export default function Header() {
             justify="center"
           >
             <NavbarItem className="w-full max-w-xl">
-              <Input
+              <Button
                 size="lg"
-                classNames={{
-                  base: "w-full",
-                  mainWrapper: "h-full",
-                  input: "text-small",
-                  inputWrapper:
-                    "h-full font-normal text-default-500 bg-default-400/20 dark:bg-default-500/20",
-                }}
-                placeholder="Type to search..."
-                startContent={<Icon icon="icon-park-outline:search" />}
-                type="search"
-              />
+                variant="flat"
+                color="default"
+                onPress={disclosureSearchCollection.onOpen}
+                fullWidth
+                startContent={
+                  <Icon icon="icon-park-outline:search" className="text-xl" />
+                }
+                className="flex h-full justify-between bg-default-400/20 px-4 py-4 capitalize text-black text-default-500"
+              >
+                <div className="mx-2 flex flex-1 justify-start">
+                  Search for collections
+                </div>
+              </Button>
             </NavbarItem>
           </NavbarContent>
           <NavbarContent justify="end" className="!flex-grow-0">
@@ -254,6 +257,18 @@ export default function Header() {
       >
         <ModalContent>
           <WalletModal />
+        </ModalContent>
+      </Modal>
+
+      <Modal
+        hideCloseButton
+        isOpen={disclosureSearchCollection.isOpen}
+        onClose={disclosureSearchCollection.onClose}
+        size="xl"
+        className="max-h-[600px]"
+      >
+        <ModalContent>
+          {(onClose) => <SearchCollectionModal onClose={onClose} />}
         </ModalContent>
       </Modal>
 
