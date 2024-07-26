@@ -62,7 +62,6 @@ export default function Collection() {
     minPrice?: number
     maxPrice?: number
   }>()
-
   const getCollection = useGetCollection(
     Number(collectionId),
     !!Number(collectionId),
@@ -307,6 +306,7 @@ export default function Collection() {
                         </Select>
                         <div className="flex items-center">
                           <Input
+                            color="secondary"
                             type="number"
                             variant="bordered"
                             size="lg"
@@ -316,6 +316,7 @@ export default function Collection() {
                           />
                           <b className="px-5">to</b>
                           <Input
+                            color="secondary"
                             type="number"
                             variant="bordered"
                             size="lg"

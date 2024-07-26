@@ -1,16 +1,19 @@
 import { useState } from "react"
+import { useUser } from "store/user"
 import useGetProductBuyed from "../services/GetProductBuyed"
-import ProductUser from "./ProductUser"
 import useGetProductCreated from "../services/GetProductIsCreated"
+import ProductUser from "./ProductUser"
 
 export default function Profile() {
+  const { user } = useUser()
+
   const [selectedItem, setSelectedItem] = useState<string>("Collected")
   const handleItemClick = (item: string) => {
     setSelectedItem(item)
   }
 
-  const listProductBuy = useGetProductBuyed("2")
-  const listProductCreated = useGetProductCreated("1")
+  const listProductBuy = useGetProductBuyed(user.id.toString())
+  const listProductCreated = useGetProductCreated(user.id.toString())
   const { data } = listProductBuy
   const productsCreated = listProductCreated.data?.products
 

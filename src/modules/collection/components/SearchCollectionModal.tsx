@@ -24,8 +24,8 @@ export default function SearchCollectionModal({ onClose }: Props) {
   const [searchCharacters, setSearchCharacters] = useState<string>()
 
   const getCollectionList = useGetCollectionList(
-    6,
-    searchCharacters,
+    { limit: 6, keyword: searchCharacters },
+
     !!searchCharacters,
   )
 
@@ -83,7 +83,7 @@ export default function SearchCollectionModal({ onClose }: Props) {
                   color="default"
                   onClick={() => {
                     onClose()
-                    navigate(`collection/${collection.id}`)
+                    navigate(`/collection/${collection.id}`)
                   }}
                   fullWidth
                   className="flex h-fit justify-between gap-5 px-4 py-4 capitalize"

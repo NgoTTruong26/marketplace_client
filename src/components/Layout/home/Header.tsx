@@ -65,7 +65,7 @@ export default function Header() {
                     if (!user.email) {
                       return disclosureLogin.onOpen()
                     }
-                    navigate("settings/create-collections")
+                    navigate("/settings/create-collections")
                   }}
                 >
                   Create
