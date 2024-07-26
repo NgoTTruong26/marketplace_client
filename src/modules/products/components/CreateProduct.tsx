@@ -9,6 +9,7 @@ import { toast } from "sonner"
 import useGetCollectionCreated from "modules/collections/services/GetCollectionIsCreated.ts"
 import { CiSquarePlus } from "react-icons/ci"
 import { useNavigate } from "react-router-dom"
+import { useUser } from "store/user.ts"
 
 const formSchema = yup.object({
   name: yup.string().required().min(3),
@@ -24,11 +25,15 @@ export default function CreateProductComponent() {
     mode: "onChange",
   })
 
+  const { user } = useUser()
+
   const [imageUrl, setImageUrl] = useState<string | null>("")
 
   const [isImageUploaded, setIsImageUploaded] = useState(false)
 
-  const listCollectionCreated = useGetCollectionCreated("1")
+  const listCollectionCreated = useGetCollectionCreated(
+    user.id?.toString() || "",
+  )
   const collectionsCreated = listCollectionCreated.data?.collections
 
   const [imageFile, setImage] = useState<File | null>(null)
@@ -77,7 +82,7 @@ export default function CreateProductComponent() {
     setIsImageUploaded(false)
   }
   const handleClickNavigate = () => {
-    navigate("/create-collections")
+    navigate("/settings/create-collections")
   }
   return (
     <>

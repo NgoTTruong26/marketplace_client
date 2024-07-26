@@ -24,11 +24,14 @@ import "./style/App.css"
 import "./style/collectionForm.css"
 import { Order } from "types/order"
 import ViewOrderComponent from "./ViewOrderComponent"
+import { useUser } from "store/user"
 
 const AdminDashboard = () => {
-  const listProductCreated = useGetProductCreated("1")
-  const listCollectionCreated = useGetCollectionCreated("1")
-  const listOrder = useGetOrderByUser("1")
+  const { user } = useUser()
+
+  const listProductCreated = useGetProductCreated(user.id.toString())
+  const listCollectionCreated = useGetCollectionCreated(user.id.toString())
+  const listOrder = useGetOrderByUser(user.id.toString())
   const productsCreated = listProductCreated.data?.products
   const collectionsCreated = listCollectionCreated.data?.collections
   const orders = listOrder.data?.orders
