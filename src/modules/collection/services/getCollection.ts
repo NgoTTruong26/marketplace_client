@@ -14,9 +14,10 @@ export async function getCollection({ id }: GetCollectionRequest) {
   return (await api.get<GetCollectionResponse>(`/collections/${id}`)).data.data
 }
 
-export function useGetCollection(id: number) {
+export function useGetCollection(id: number, enabled: boolean) {
   return useQuery({
     queryKey: ["getCollection", id],
     queryFn: async () => await getCollection({ id }),
+    enabled,
   })
 }

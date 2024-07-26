@@ -20,11 +20,12 @@ import {
 } from "@nextui-org/react"
 import clsx from "clsx"
 import { queryClient } from "configs/queryClient"
+import debounce from "lodash.debounce"
 import LoginModal from "modules/auth/components/LoginModal"
 import { useAddProductToCart } from "modules/cart/services/addProductToCart"
 import { useRemoveProductFromCart } from "modules/cart/services/removeProductFromCart"
 import { useGetProductList } from "modules/product/services/getProductList"
-import { useEffect, useMemo } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { useInView } from "react-intersection-observer"
 import { Navigate, useNavigate, useParams } from "react-router-dom"
 import { toast } from "sonner"
@@ -33,9 +34,9 @@ import { useUser } from "store/user"
 import { CollectionParams } from "../route"
 import { useGetCollection } from "../services/getCollection"
 
-export const sortOptions = [
-  { key: "price-low-to-high", label: "Price Low To High" },
-  { key: "price-high-to-low", label: "Price High To Low" },
+export const sortOptions: { key: "asc" | "desc"; label: string }[] = [
+  { key: "asc", label: "Price Low To High" },
+  { key: "desc", label: "Price High To Low" },
 ]
 
 export default function Collection() {
@@ -45,15 +46,48 @@ export default function Collection() {
 
   const { collectionId } = useParams<keyof CollectionParams>()
 
-  const navigate = useNavigate()
-  const { ref, inView } = useInView()
-
   if (!collectionId || !Number(collectionId)) {
     return <Navigate to="/" />
   }
 
-  const getCollection = useGetCollection(Number(collectionId))
-  const getProductList = useGetProductList(Number(collectionId))
+  const navigate = useNavigate()
+  const { ref, inView } = useInView()
+
+  const [searchCharacters, setSearchCharacters] = useState<string>()
+  const [isFilterOwner, setIsFilterOwner] = useState<boolean>(false)
+  const [sortedBy, setSortedBy] = useState<"asc" | "desc">()
+  const [minPrice, setMinPrice] = useState<number>()
+  const [maxPrice, setMaxPrice] = useState<number>()
+  const [filterByPrice, setFilterByPrice] = useState<{
+    minPrice?: number
+    maxPrice?: number
+  }>()
+
+  const getCollection = useGetCollection(
+    Number(collectionId),
+    !!Number(collectionId),
+  )
+
+  console.log(filterByPrice, "filterByPrice")
+
+  const getProductList = useGetProductList(
+    {
+      collectionId: Number(collectionId),
+      keyword: searchCharacters,
+      userId: isFilterOwner ? user.id : undefined,
+      sortedBy: sortedBy,
+      maxPrice: filterByPrice?.maxPrice,
+      minPrice: filterByPrice?.minPrice,
+    },
+    !!Number(collectionId),
+  )
+
+  const debouncedSearch = useRef(
+    debounce((value: string) => {
+      setSearchCharacters(value)
+    }, 500),
+  ).current
+
   const addProductToCart = useAddProductToCart()
   const removeProductFromCart = useRemoveProductFromCart()
 
@@ -111,6 +145,10 @@ export default function Collection() {
   )
 
   useEffect(() => {
+    debouncedSearch.cancel()
+  }, [debouncedSearch])
+
+  useEffect(() => {
     if (inView) {
       getProductList.fetchNextPage()
     }
@@ -144,7 +182,7 @@ export default function Collection() {
                 <div className="flex flex-col">
                   <div className="text-2xl font-semibold capitalize">{`${getCollection.data?.name} by ${getCollection.data?.profile.username}`}</div>
                   <div className="flex items-center">
-                    <div>{`Items ${getCollection.data?.totalVolume}`}</div>
+                    <div>{`Items ${getCollection.data?.totalProducts}`}</div>
                     <Icon icon="mdi:dot" className="text-4xl" />
                     <div>
                       <span>Created </span>
@@ -199,12 +237,16 @@ export default function Collection() {
                     classNames={{
                       inputWrapper: "h-full",
                     }}
+                    onValueChange={debouncedSearch}
                   />
 
                   <Select
                     variant="bordered"
                     label="Sort"
                     className="max-w-[200px]"
+                    onChange={(e) => {
+                      setSortedBy(e.target.value as "asc" | "desc")
+                    }}
                   >
                     {sortOptions.map((option) => (
                       <SelectItem key={option.key}>{option.label}</SelectItem>
@@ -214,8 +256,13 @@ export default function Collection() {
               </div>
               <div className="flex justify-between gap-10 px-default">
                 <div className="relative h-full w-full max-w-80">
-                  <Accordion className="sticky top-40" selectionMode="multiple">
+                  <Accordion
+                    className="sticky top-40"
+                    selectionMode="multiple"
+                    defaultExpandedKeys={["owner", "price"]}
+                  >
                     <AccordionItem
+                      key="owner"
                       classNames={{
                         heading: "font-semibold",
                       }}
@@ -229,6 +276,10 @@ export default function Collection() {
                         classNames={{
                           wrapper: "gap-5",
                         }}
+                        onValueChange={(value) => {
+                          setIsFilterOwner(value === "owner")
+                        }}
+                        defaultValue="all"
                       >
                         <Radio value="all" className="max-w-full">
                           All
@@ -239,6 +290,7 @@ export default function Collection() {
                       </RadioGroup>
                     </AccordionItem>
                     <AccordionItem
+                      key="price"
                       aria-label="Price"
                       title="Price"
                       classNames={{
@@ -254,11 +306,35 @@ export default function Collection() {
                           <SelectItem key="USD">USD</SelectItem>
                         </Select>
                         <div className="flex items-center">
-                          <Input variant="bordered" size="lg" />
+                          <Input
+                            type="number"
+                            variant="bordered"
+                            size="lg"
+                            onValueChange={(value) => {
+                              setMinPrice(Number(value) || undefined)
+                            }}
+                          />
                           <b className="px-5">to</b>
-                          <Input variant="bordered" size="lg" />
+                          <Input
+                            type="number"
+                            variant="bordered"
+                            size="lg"
+                            onValueChange={(value) => {
+                              setMaxPrice(Number(value) || undefined)
+                            }}
+                          />
                         </div>
-                        <Button color="secondary">Apply</Button>
+                        <Button
+                          color="secondary"
+                          onClick={() => {
+                            setFilterByPrice({
+                              maxPrice,
+                              minPrice,
+                            })
+                          }}
+                        >
+                          Apply
+                        </Button>
                       </div>
                     </AccordionItem>
                   </Accordion>

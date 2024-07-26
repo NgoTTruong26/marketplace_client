@@ -7,6 +7,7 @@ export interface GetCollectionListRequest {
   limit?: number
   page: number
   keyword?: string
+  categoryId?: number
 }
 
 export interface GetCollectionListResponse extends BaseGetList {
@@ -22,18 +23,18 @@ export async function getCollectionList(params: GetCollectionListRequest) {
 }
 
 export function useGetCollectionList(
-  limit?: number,
-  keyword?: string,
+  req: Omit<GetCollectionListRequest, "page">,
   enabled?: boolean,
 ) {
   return useInfiniteQuery({
-    queryKey: ["getCollectionList", limit, keyword],
+    queryKey: ["getCollectionList", req.limit, req.keyword, req.categoryId],
 
     queryFn: async ({ pageParam }) =>
       await getCollectionList({
-        limit: limit ?? 12,
+        limit: req.limit ?? 12,
         page: pageParam.page,
-        keyword,
+        keyword: req.keyword,
+        categoryId: req.categoryId,
       }),
 
     initialPageParam: {

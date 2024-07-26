@@ -13,19 +13,23 @@ import clsx from "clsx"
 import useGetCategories from "modules/category/services/getCategories"
 import { useGetCollectionList } from "modules/collection/services/getCollectionList"
 import useGetTopCollections from "modules/collection/services/getTopCollections"
-import { useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { Autoplay, Navigation } from "swiper/modules"
 import { Swiper, SwiperRef, SwiperSlide } from "swiper/react"
 import LoadingCollectionList from "../components/LoadingCollectionList"
 
 export default function HomePage() {
-  const getCategories = useGetCategories()
-  const getTopCollections = useGetTopCollections()
-  const getTop10Collections = useGetTopCollections(10)
-  const getCollectionList = useGetCollectionList()
-
   const navigate = useNavigate()
+
+  const [categoryId, setCategoryId] = useState<number | undefined>()
+
+  const getCategories = useGetCategories()
+  const getTopCollections = useGetTopCollections({ categoryId })
+  const getTop10Collections = useGetTopCollections({ limit: 10, categoryId })
+  const getCollectionList = useGetCollectionList({
+    categoryId,
+  })
 
   const swiperRef = useRef<SwiperRef>(null)
   const nextButtonRef = useRef(null)
@@ -49,6 +53,12 @@ export default function HomePage() {
     }
   }
 
+  useEffect(() => {
+    swiperRefCollectionList.current?.swiper.slideTo(0)
+    swiperRef.current?.swiper.slideTo(0)
+    swiperRefCategories.current?.swiper.slideTo(0)
+  }, [categoryId])
+
   return (
     <div className="mb-10 flex justify-center">
       <div className="flex w-full max-w-default flex-col gap-5">
@@ -66,11 +76,18 @@ export default function HomePage() {
               cursor: "bg-[#ffffff1f]",
               tabContent: "!text-white",
             }}
+            onSelectionChange={(value) => {
+              if (Number(value)) {
+                setCategoryId(Number(value))
+                return
+              }
+              return setCategoryId(undefined)
+            }}
           >
-            <Tab title="all" className="capitalize" />
+            <Tab key="all" title="all" className="capitalize" />
             {getCategories.data?.map((category) => (
               <Tab
-                key={category.name}
+                key={category.id}
                 title={category.name}
                 className="capitalize"
               />
