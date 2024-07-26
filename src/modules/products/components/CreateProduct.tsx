@@ -1,15 +1,15 @@
-import * as yup from "yup"
-import { FormProvider, useForm } from "react-hook-form"
 import { yupResolver } from "@hookform/resolvers/yup"
 import { Button, SelectItem } from "@nextui-org/react"
-import Field from "../../../components/core/field"
-import { useState } from "react"
-import { createProduct, createProductDTO } from "../services/createProduct.ts"
-import { toast } from "sonner"
 import useGetCollectionCreated from "modules/collections/services/GetCollectionIsCreated.ts"
+import { useState } from "react"
+import { FormProvider, useForm } from "react-hook-form"
 import { CiSquarePlus } from "react-icons/ci"
 import { useNavigate } from "react-router-dom"
+import { toast } from "sonner"
 import { useUser } from "store/user.ts"
+import * as yup from "yup"
+import Field from "../../../components/core/field"
+import { createProduct, createProductDTO } from "../services/createProduct.ts"
 
 const formSchema = yup.object({
   name: yup.string().required().min(3),
@@ -31,9 +31,7 @@ export default function CreateProductComponent() {
 
   const [isImageUploaded, setIsImageUploaded] = useState(false)
 
-  const listCollectionCreated = useGetCollectionCreated(
-    user.id?.toString() || "",
-  )
+  const listCollectionCreated = useGetCollectionCreated(user.id.toString())
   const collectionsCreated = listCollectionCreated.data?.collections
 
   const [imageFile, setImage] = useState<File | null>(null)

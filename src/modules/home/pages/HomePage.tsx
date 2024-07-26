@@ -126,17 +126,17 @@ export default function HomePage() {
                     isZoomed
                     alt="NextUI Fruit Image with Zoom"
                     src={collection.bannerUrl}
-                    className="h-full w-full object-cover"
+                    className="h-full w-full cursor-pointer object-cover"
                     classNames={{
                       zoomedWrapper: clsx(
                         "h-full [&>img]:hover:scale-105",
-                        "before:absolute before:w-full before:h-full before:bg-[#00000033] before:z-20",
+                        "before:absolute before:w-full before:h-full before:bg-[#00000033] before:z-20 before:cursor-pointer",
                       ),
                       wrapper: "h-full w-full !max-w-full",
                       img: "hover:scale-105 object-cover",
                     }}
                   />
-                  <div className="absolute bottom-5 left-5 z-20 flex flex-col gap-5 text-white">
+                  <div className="absolute bottom-5 left-5 z-20 flex cursor-pointer flex-col gap-5 text-white">
                     <Avatar
                       isBordered
                       size="lg"
@@ -146,7 +146,7 @@ export default function HomePage() {
                     <div className="flex flex-col">
                       <div className="text-2xl font-semibold capitalize">{`${collection.name} by ${collection.profile.username}`}</div>
                       <div className="flex items-center">
-                        <div>{`${collection.totalVolume} items`}</div>
+                        <div>{`${collection.totalProducts} items`}</div>
                         <Icon icon="mdi:dot" className="text-4xl" />
                         <div>{`${collection.floorPrice} USD`}</div>
                       </div>

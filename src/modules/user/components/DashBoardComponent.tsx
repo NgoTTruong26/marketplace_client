@@ -13,18 +13,18 @@ import {
   FaUsers,
 } from "react-icons/fa"
 import { toast } from "sonner"
+import { useUser } from "store/user"
 import { collectionEdit } from "types/collectionEdit"
+import { Order } from "types/order"
 import { Product } from "types/product"
 import useGetCollectionCreated from "../../collections/services/GetCollectionIsCreated"
 import useGetOrderByUser from "../services/GetOrderByUser"
 import useGetProductCreated from "../services/GetProductIsCreated"
 import EditCollectionComponent from "./EditCollectionComponent"
 import EditProductComponent from "./EditProductComponent"
+import ViewOrderComponent from "./ViewOrderComponent"
 import "./style/App.css"
 import "./style/collectionForm.css"
-import { Order } from "types/order"
-import ViewOrderComponent from "./ViewOrderComponent"
-import { useUser } from "store/user"
 
 const AdminDashboard = () => {
   const { user } = useUser()
@@ -158,7 +158,9 @@ const AdminDashboard = () => {
     if (!confirmed) return
     const collectionId = id.toString()
     console.log(collectionId)
-    await deleteCollection("1", collectionId).then(async () => {})
+    await deleteCollection(user.id.toString(), collectionId).then(
+      async () => {},
+    )
     await queryClient
       .refetchQueries({
         queryKey: ["getCollectionCreated"],
