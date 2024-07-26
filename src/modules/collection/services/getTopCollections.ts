@@ -4,7 +4,7 @@ import { Collection } from "types/collection"
 
 export interface GetTopCollectionsRequest {
   limit?: number
-  column?: string
+  categoryId?: number
 }
 
 export interface GetTopCollectionsResponse {
@@ -27,9 +27,9 @@ async function getTopCollections({
   )
 }
 
-export default function useGetTopCollections(limit?: number, column?: string) {
+export default function useGetTopCollections(req: GetTopCollectionsRequest) {
   return useQuery({
-    queryKey: ["getTopCollections", limit, column],
-    queryFn: async () => await getTopCollections({ limit, column }),
+    queryKey: ["getTopCollections", req.limit, req.categoryId],
+    queryFn: async () => await getTopCollections(req),
   })
 }

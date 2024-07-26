@@ -6,7 +6,13 @@ import { Product } from "types/product"
 export interface GetProductListRequest {
   collectionId: number
   limit?: number
-  page: number
+  page?: number
+  keyword?: string
+  sort?: string
+  sortedBy?: string
+  userId?: number
+  minPrice?: number
+  maxPrice?: number
 }
 
 export interface GetProductListResponse extends BaseGetList {
@@ -22,17 +28,27 @@ export async function getProductList(params: GetProductListRequest) {
 }
 
 export function useGetProductList(
-  collectionId: number,
-  limit?: number,
+  data: GetProductListRequest,
   enabled?: boolean,
 ) {
+  console.log(data.minPrice, data.maxPrice)
   return useInfiniteQuery({
-    queryKey: ["getProductList", collectionId, limit],
+    queryKey: [
+      "getProductList",
+      data.collectionId,
+      data.limit,
+      data.keyword,
+      data.sort,
+      data.sortedBy,
+      data.minPrice,
+      data.maxPrice,
+      data.userId,
+    ],
 
     queryFn: async ({ pageParam }) =>
       await getProductList({
-        collectionId,
-        limit: limit ?? 15,
+        ...data,
+        limit: data.limit ?? 15,
         page: pageParam.page,
       }),
 
