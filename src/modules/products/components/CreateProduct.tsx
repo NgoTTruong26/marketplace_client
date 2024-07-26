@@ -7,7 +7,6 @@ import { useState } from "react"
 import { createProduct, createProductDTO } from "../services/createProduct.ts"
 import { toast } from "sonner"
 import useGetCollectionCreated from "modules/collections/services/GetCollectionIsCreated.ts"
-import { Collection } from "types/collection.ts"
 import { CiSquarePlus } from "react-icons/ci"
 import { useNavigate } from "react-router-dom"
 
@@ -83,9 +82,12 @@ export default function CreateProductComponent() {
   return (
     <>
       <FormProvider {...methods}>
-        <form onSubmit={methods.handleSubmit(onSubmit)}>
-          <div className="mx-auto flex w-full items-center justify-center border-t-4 pb-2 pt-6 text-xl">
-            Create Product
+        <form
+          className="w-full pt-20"
+          onSubmit={methods.handleSubmit(onSubmit)}
+        >
+          <div className="mx-auto flex w-full items-center justify-center pb-2 pt-6 text-xl">
+            {/* Create Product */}
           </div>
           <div className="flex items-center justify-center">
             <div className="mx-auto flex max-w-4xl flex-col">
@@ -198,15 +200,13 @@ export default function CreateProductComponent() {
                           placeholder="Select a Collection"
                           className="h-10 max-w-xs"
                           options={
-                            collectionsCreated?.map(
-                              (collection: Collection) => ({
-                                label: collection.name,
-                                value: collection.id,
-                              }),
-                            ) || []
+                            collectionsCreated?.map((collection) => ({
+                              label: collection.name,
+                              value: collection.id,
+                            })) || []
                           }
                         />
-                        {collectionsCreated?.map((collection: Collection) => (
+                        {collectionsCreated?.map((collection) => (
                           <SelectItem key={collection.id} value={collection.id}>
                             {collection.name}
                           </SelectItem>

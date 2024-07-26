@@ -115,7 +115,7 @@ export default function CreateCollectionsComponent() {
           onSubmit={methods.handleSubmit(onSubmit)}
         >
           <div className="mx-auto flex w-full items-center justify-center pb-2 pt-6 text-xl">
-            Create Collection
+            {/* Create Collection */}
           </div>
           <div className="flex items-center justify-center">
             <div className="flex max-w-4xl flex-col">

@@ -4,6 +4,9 @@
   padding: 20px;
   background-color: #f4f7fc;
   min-height: 100vh;
+  padding-top: 100px;
+  background-color: white;
+  width: 100%;
 }
 
 /* Statistics Widgets */
@@ -25,6 +28,22 @@
 
 .widget:hover {
   transform: translateY(-5px);
+}
+.table-container {
+  max-height: 400px; /* Adjust the height as needed */
+  overflow-y: auto;
+}
+
+.table-container table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-container th,
+.table-container td {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
 }
 
 .widget-icon {

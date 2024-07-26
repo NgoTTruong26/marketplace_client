@@ -4,4 +4,5 @@ export interface Order {
   description: string
   paymentMethod: string
   totalPrice: number
+  createdAt: string
 }

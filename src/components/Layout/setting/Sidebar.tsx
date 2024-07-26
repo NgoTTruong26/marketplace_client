@@ -9,25 +9,28 @@ enum TitleSidebar {
   NOTIFICATIONS = "Notifications",
   OFFERS = "Offers",
   ACCOUNT_SUPPORT = "Account Support",
-  DEVELOPER = "Developer",
+  MANAGEMENT = "Management",
+  CREATE_PRODUCT = "Create Product",
 }
 
 enum KeySidebar {
   PROFILE = "profile",
   CREATE_COLLECTION = "create-collections",
+  CREATE_PRODUCT = "create-products",
   NOTIFICATIONS = "#",
   OFFERS = "#",
   ACCOUNT_SUPPORT = "#",
-  DEVELOPER = "#",
+  MANAGEMENT = "management",
 }
 
 enum IconSidebar {
   PROFILE = "mingcute:user-4-line",
   CREATE_COLLECTION = "material-symbols:tab-group-outline-rounded",
+  CREATE_PRODUCT = "material-symbols:tab-group-outline-rounded",
   NOTIFICATIONS = "mi:notification",
   OFFERS = "ic:outline-local-offer",
   ACCOUNT_SUPPORT = "mdi:shield-outline",
-  DEVELOPER = "ic:twotone-developer-mode",
+  MANAGEMENT = "ic:twotone-developer-mode",
 }
 
 const sideBar = [
@@ -40,6 +43,11 @@ const sideBar = [
     title: TitleSidebar.CREATE_COLLECTION,
     key: KeySidebar.CREATE_COLLECTION,
     icon: IconSidebar.CREATE_COLLECTION,
+  },
+  {
+    title: TitleSidebar.CREATE_PRODUCT,
+    key: KeySidebar.CREATE_PRODUCT,
+    icon: IconSidebar.CREATE_PRODUCT,
   },
   {
     title: TitleSidebar.NOTIFICATIONS,
@@ -57,9 +65,9 @@ const sideBar = [
     icon: IconSidebar.ACCOUNT_SUPPORT,
   },
   {
-    title: TitleSidebar.DEVELOPER,
-    key: KeySidebar.DEVELOPER,
-    icon: IconSidebar.DEVELOPER,
+    title: TitleSidebar.MANAGEMENT,
+    key: KeySidebar.MANAGEMENT,
+    icon: IconSidebar.MANAGEMENT,
   },
 ]
 

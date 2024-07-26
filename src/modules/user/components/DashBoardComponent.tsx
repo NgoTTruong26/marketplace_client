@@ -22,6 +22,8 @@ import EditCollectionComponent from "./EditCollectionComponent"
 import EditProductComponent from "./EditProductComponent"
 import "./style/App.css"
 import "./style/collectionForm.css"
+import { Order } from "types/order"
+import ViewOrderComponent from "./ViewOrderComponent"
 
 const AdminDashboard = () => {
   const listProductCreated = useGetProductCreated("1")
@@ -32,10 +34,27 @@ const AdminDashboard = () => {
   const orders = listOrder.data?.orders
   const [activeTab, setActiveTab] = useState<string>("collections")
 
+  function formatDateToDDMMYYYY(isoString: string): string {
+    const date = new Date(isoString)
+
+    // Get day, month, and year from the Date object
+    const day = date.getUTCDate()
+    const month = date.getUTCMonth() + 1 // Months are zero-based
+    const year = date.getUTCFullYear()
+
+    // Format day and month to always be two digits
+    const dayString = day < 10 ? `0${day}` : `${day}`
+    const monthString = month < 10 ? `0${month}` : `${month}`
+
+    return `${dayString}/${monthString}/${year}`
+  }
+
   const [editingCollection, setEditingCollection] = useState<number | null>(
     null,
   )
   const [editingProduct, setEditingProduct] = useState<number | null>(null)
+  const [viewOrder, setViewOrder] = useState<number | null>(null)
+  const [orderId, setOrderId] = useState<number | null>(null)
   const [updatedCollection, setUpdatedCollection] = useState({
     name: "",
     floor_price: 1,
@@ -149,6 +168,11 @@ const AdminDashboard = () => {
     })
   }
 
+  const handelViewOrderClick = (order: Order) => {
+    setViewOrder(order.id)
+    setOrderId(order.id)
+  }
+
   return (
     <div className="admin-dashboard">
       <div className="dashboard-content">
@@ -180,46 +204,49 @@ const AdminDashboard = () => {
           {activeTab === "collections" && (
             <section className="user-management">
               <h2 className="font-bold">Management Collections</h2>
-              <table className="user-table">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Floor price</th>
-                    <th>Total volume</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {collectionsCreated &&
-                    collectionsCreated.map((collection, index) => (
-                      <tr key={index}>
-                        <td>{index + 1}</td>
-                        <td>{collection.name}</td>
-                        <td>{collection.floor_price}</td>
-                        <td>{collection.total_volume}</td>
-                        <td>
-                          <button
-                            onClick={() =>
-                              handleEditCollectionClick(collection)
-                            }
-                            className="edit-btn"
-                          >
-                            <FaEdit />
-                          </button>
-                          <button
-                            onClick={() =>
-                              handleDeleteCollection(collection.id)
-                            }
-                            className="delete-btn"
-                          >
-                            <FaTrash />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
+              <div className="table-container">
+                <table className="user-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Name</th>
+                      <th>Floor price</th>
+                      <th>Total volume</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {collectionsCreated &&
+                      collectionsCreated.map((collection, index) => (
+                        <tr key={index}>
+                          <td>{index + 1}</td>
+                          <td>{collection.name}</td>
+                          <td>{collection.floor_price}</td>
+                          <td>{collection.total_volume}</td>
+                          <td>
+                            <button
+                              onClick={() =>
+                                handleEditCollectionClick(collection)
+                              }
+                              className="edit-btn"
+                            >
+                              <FaEdit />
+                            </button>
+                            <button
+                              onClick={() =>
+                                handleDeleteCollection(collection.id)
+                              }
+                              className="delete-btn"
+                            >
+                              <FaTrash />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+
               {editingCollection && (
                 <EditCollectionComponent
                   updatedCollection={updatedCollection}
@@ -234,43 +261,45 @@ const AdminDashboard = () => {
           {activeTab === "products" && (
             <section className="product-management">
               <h2 className="font-bold">Management Products</h2>
-              <table>
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Price</th>
-                    <th>Quanity</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {productsCreated &&
-                    productsCreated.map((product, index) => (
-                      <tr key={index}>
-                        <td>{index + 1}</td>
-                        <td>{product.name}</td>
-                        <td>${product.price}</td>
-                        <td>{product.quantity}</td>
-                        <td>
-                          <button
-                            onClick={() => handleEditProductClick(product)}
-                            className="edit-btn"
-                          >
-                            <FaEdit />
-                          </button>
+              <div className="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Name</th>
+                      <th>Price</th>
+                      <th>Quantity</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {productsCreated &&
+                      productsCreated.map((product, index) => (
+                        <tr key={index}>
+                          <td>{index + 1}</td>
+                          <td>{product.name}</td>
+                          <td>${product.price}</td>
+                          <td>{product.quantity}</td>
+                          <td>
+                            <button
+                              onClick={() => handleEditProductClick(product)}
+                              className="edit-btn"
+                            >
+                              <FaEdit />
+                            </button>
 
-                          <button
-                            onClick={() => handleDeleteProduct(product.id)}
-                            className="delete-btn"
-                          >
-                            <FaTrash />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
+                            <button
+                              onClick={() => handleDeleteProduct(product.id)}
+                              className="delete-btn"
+                            >
+                              <FaTrash />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
               {editingProduct && (
                 <EditProductComponent
                   updatedProduct={updatedProduct}
@@ -285,37 +314,47 @@ const AdminDashboard = () => {
           {activeTab === "orders" && (
             <section className="order-management">
               <h2 className="font-bold">Order History</h2>
-              <table className="order-table">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Total price</th>
-                    <th>Payment method</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {orders &&
-                    orders.map((order, index) => {
-                      return (
-                        <tr key={index}>
-                          <td>{index + 1}</td>
+              <div className="table-container">
+                <table className="order-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Total price</th>
+                      <th>Payment method</th>
+                      <th>Date</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {orders &&
+                      orders.map((order, index) => {
+                        return (
+                          <tr key={index}>
+                            <td>{index + 1}</td>
 
-                          <td>${order.totalPrice}</td>
-                          <td>{order.paymentMethod}</td>
-                          <td>
-                            <button
-                              // onClick={() => handleViewOrder(order)}
-                              className="view-btn"
-                            >
-                              <FaEye /> View
-                            </button>
-                          </td>
-                        </tr>
-                      )
-                    })}
-                </tbody>
-              </table>
+                            <td>${order.totalPrice}</td>
+                            <td>{order.paymentMethod}</td>
+                            <td>{formatDateToDDMMYYYY(order.createdAt)}</td>
+                            <td>
+                              <button
+                                onClick={() => handelViewOrderClick(order)}
+                                className="view-btn"
+                              >
+                                <FaEye /> View
+                              </button>
+                            </td>
+                          </tr>
+                        )
+                      })}
+                  </tbody>
+                </table>
+              </div>
+              {viewOrder && (
+                <ViewOrderComponent
+                  orderId={orderId}
+                  setViewOrder={setViewOrder}
+                />
+              )}
             </section>
           )}
         </div>
