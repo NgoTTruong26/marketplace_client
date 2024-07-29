@@ -13,22 +13,23 @@ export interface UserState {
 const defaultUserState: { auth: UserAuth; user: User } = {
   auth: { accessToken: "" },
   user: {
-    id: NaN,
+    id: -1,
     email: "",
     profile: {
+      id: -1,
       avatarUrl: "",
       bannerUrl: "",
       username: "",
       bio: "",
-      userId: NaN,
+      userId: -1,
     },
-    walletBalance: NaN,
+    walletBalance: -1,
     cart: {
-      id: NaN,
+      id: -1,
       products: [],
-      totalPrice: NaN,
-      userId: NaN,
-      totalProducts: NaN,
+      totalPrice: -1,
+      userId: -1,
+      totalProducts: -1,
     },
   },
 }
