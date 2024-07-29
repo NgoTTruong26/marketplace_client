@@ -20,7 +20,11 @@ export default function WalletModal() {
         <div className="flex w-full items-center justify-between gap-4">
           <div className="flex flex-col">
             <div className="text-3xl font-medium">
-              ${user.walletBalance + " "} USD
+              $
+              {parseFloat(user.walletBalance.toString()).toLocaleString(
+                "de-DE",
+              ) + " "}{" "}
+              USD
             </div>
             <div className="text-default-500">Wallet balance</div>
           </div>
@@ -47,10 +51,10 @@ export default function WalletModal() {
             ></path>
             <circle cx="50" cy="28" fill="#F6C000" r="16"></circle>
             <path
-              clip-rule="evenodd"
+              clipRule="evenodd"
               d="M7 36V28C7 32.4183 10.5817 36 15 36H85C89.4183 36 93 39.5817 93 44V92C93 96.4183 89.4183 100 85 100H15C10.5817 100 7 96.4183 7 92V36Z"
               fill="url(#paint1_linear_6146_5380)"
-              fill-rule="evenodd"
+              fillRule="evenodd"
             ></path>
             <circle cx="81" cy="68" fill="white" r="4"></circle>
             <rect

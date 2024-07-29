@@ -107,7 +107,7 @@ export default function SearchCollectionModal({ onClose }: Props) {
                   <div className="flex flex-col items-start">
                     <div>Floor Price</div>
                     <div className="font-semibold">
-                      {collection.floorPrice} USD
+                      {collection.floorPrice.toLocaleString("de-DE")} USD
                     </div>
                   </div>
                 </Button>

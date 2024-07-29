@@ -88,7 +88,7 @@ export default function Header() {
                 startContent={
                   <Icon icon="icon-park-outline:search" className="text-xl" />
                 }
-                className="flex h-full justify-between bg-default-400/20 px-4 py-4 capitalize text-black text-default-500"
+                className="flex h-full justify-between bg-default-400/20 px-4 py-4 capitalize text-default-500"
               >
                 <div className="mx-2 flex flex-1 justify-start">
                   Search for collections

@@ -1,14 +1,23 @@
 import { Card, Skeleton } from "@nextui-org/react"
+import { cn } from "utils/cn"
 
-export default function LoadingCollectionList() {
+interface Props {
+  wrapperClass?: string
+  quality?: number
+}
+
+export default function LoadingCollectionList({
+  quality = 12,
+  wrapperClass,
+}: Props) {
   return (
-    <div className="grid grid-cols-6 gap-5">
-      {Array(12)
+    <div className={cn(["grid grid-cols-6 gap-5", wrapperClass])}>
+      {Array(quality)
         .fill("")
         .map((_, idx) => (
           <Card key={idx} className="w-full space-y-5 p-4" radius="lg">
             <Skeleton className="rounded-lg">
-              <div className="h-40 rounded-lg bg-default-300"></div>
+              <div className="h-48 rounded-lg bg-default-300"></div>
             </Skeleton>
             <div className="space-y-3">
               <Skeleton className="w-3/5 rounded-lg">

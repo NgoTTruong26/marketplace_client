@@ -7,7 +7,6 @@ interface CartItem {
 }
 
 export interface CreateOrderRequest {
-  total_price: number
   cart_items: CartItem[]
 }
 export interface CreateOrderResponse {

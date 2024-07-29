@@ -16,14 +16,21 @@ import {
   RadioGroup,
   Select,
   SelectItem,
+  Skeleton,
   useDisclosure,
 } from "@nextui-org/react"
 import clsx from "clsx"
+import DialogModal from "components/common/DialogModal"
 import { queryClient } from "configs/queryClient"
 import debounce from "lodash.debounce"
 import LoginModal from "modules/auth/components/LoginModal"
 import { useAddProductToCart } from "modules/cart/services/addProductToCart"
+import {
+  CreateOrderRequest,
+  useCreateOrder,
+} from "modules/cart/services/createOrder"
 import { useRemoveProductFromCart } from "modules/cart/services/removeProductFromCart"
+import LoadingCollectionList from "modules/home/components/LoadingCollectionList"
 import { useGetProductList } from "modules/product/services/getProductList"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useInView } from "react-intersection-observer"
@@ -40,7 +47,7 @@ export const sortOptions: { key: "asc" | "desc"; label: string }[] = [
 ]
 
 export default function Collection() {
-  const { user } = useUser()
+  const { user, setUser } = useUser()
 
   const { cart } = useCart()
 
@@ -53,6 +60,9 @@ export default function Collection() {
   const navigate = useNavigate()
   const { ref, inView } = useInView()
 
+  const disclosureLogin = useDisclosure()
+  const disclosureDialogPaymentConfirm = useDisclosure()
+
   const [searchCharacters, setSearchCharacters] = useState<string>()
   const [isFilterOwner, setIsFilterOwner] = useState<boolean>(false)
   const [sortedBy, setSortedBy] = useState<"asc" | "desc">()
@@ -62,12 +72,13 @@ export default function Collection() {
     minPrice?: number
     maxPrice?: number
   }>()
+
+  const [order, setOrder] = useState<CreateOrderRequest>()
+
   const getCollection = useGetCollection(
     Number(collectionId),
     !!Number(collectionId),
   )
-
-  console.log(filterByPrice, "filterByPrice")
 
   const getProductList = useGetProductList(
     {
@@ -89,8 +100,7 @@ export default function Collection() {
 
   const addProductToCart = useAddProductToCart()
   const removeProductFromCart = useRemoveProductFromCart()
-
-  const disclosureLogin = useDisclosure()
+  const createOrder = useCreateOrder()
 
   const handleAddProductToCart = (cartId: number, productId: number) => {
     addProductToCart.mutate(
@@ -111,10 +121,9 @@ export default function Collection() {
       },
     )
   }
-  const handleRemoveProductFromCart = (productId: number, cartId: number) => {
+  const handleRemoveProductFromCart = (productId: number) => {
     removeProductFromCart.mutate(
       {
-        cartId,
         productId,
       },
       {
@@ -143,6 +152,19 @@ export default function Collection() {
     [cart],
   )
 
+  const handleCreateOrder = (order: CreateOrderRequest) => {
+    createOrder.mutate(order, {
+      onSuccess: async (data) => {
+        setUser({ ...user, walletBalance: data.walletBalance })
+        await queryClient.refetchQueries({
+          queryKey: ["getProduct"],
+        })
+        disclosureDialogPaymentConfirm.onClose()
+        toast.success("Payment successfully")
+      },
+    })
+  }
+
   useEffect(() => {
     debouncedSearch.cancel()
   }, [debouncedSearch])
@@ -158,65 +180,117 @@ export default function Collection() {
       <div className="flex justify-center">
         <div className="flex w-full max-w-default flex-col gap-5">
           <div className="relative max-h-[600px]">
-            <Image
-              radius="none"
-              alt="NextUI Fruit Image with Zoom"
-              src={getCollection.data?.bannerUrl}
-              className="object-fit h-full w-full"
-              classNames={{
-                wrapper: clsx(
-                  "h-full w-full !max-w-full ",
-                  "before:absolute before:w-full before:h-full before:bg-[#00000033] before:z-20",
-                ),
-              }}
-            />
+            {getCollection.isLoading ? (
+              <Skeleton className="h-full rounded-lg">
+                <div className="h-[600px] rounded-lg bg-default-300"></div>
+              </Skeleton>
+            ) : (
+              <Image
+                radius="none"
+                alt="NextUI Fruit Image with Zoom"
+                src={getCollection.data?.bannerUrl}
+                className="object-fit h-full w-full"
+                classNames={{
+                  wrapper: clsx(
+                    "h-full w-full !max-w-full ",
+                    "before:absolute before:w-full before:h-full before:bg-[#00000033] before:z-20",
+                  ),
+                }}
+              />
+            )}
             <div className="absolute bottom-5 z-20 flex w-full items-end justify-between gap-10 px-16 text-white">
-              <div className="flex flex-col gap-5">
-                <Avatar
-                  isBordered
-                  size="lg"
-                  radius="lg"
-                  src={getCollection.data?.imageUrl}
-                />
-                <div className="flex flex-col">
-                  <div className="text-2xl font-semibold capitalize">{`${getCollection.data?.name} by ${getCollection.data?.profile.username}`}</div>
-                  <div className="flex items-center">
-                    <div>{`Items ${getCollection.data?.totalProducts}`}</div>
-                    <Icon icon="mdi:dot" className="text-4xl" />
-                    <div>
-                      <span>Created </span>
-                      <b>
-                        {new Date(
-                          getCollection.data?.createdAt || "",
-                        ).toLocaleDateString("en-US", {
-                          month: "short", // "short" cho tên tháng viết tắt, ví dụ: "Jul"
-                          year: "numeric", // "numeric" cho năm đầy đủ, ví dụ: "2023"
-                        })}
-                      </b>
+              <div className="flex w-full flex-1 flex-col gap-5">
+                {getCollection.isLoading ? (
+                  <Skeleton className="h-14 w-14 rounded-lg border-2 border-default">
+                    <div className="h-[600px] rounded-lg bg-default-300"></div>
+                  </Skeleton>
+                ) : (
+                  <Avatar
+                    isBordered
+                    size="lg"
+                    radius="lg"
+                    src={getCollection.data?.imageUrl}
+                  />
+                )}
+                {getCollection.isLoading ? (
+                  <div className="flex w-full flex-col gap-2">
+                    <Skeleton className="w-3/5 rounded-lg border-2 border-default">
+                      <div className="h-5 w-3/5 rounded-lg bg-default-200"></div>
+                    </Skeleton>
+                    <Skeleton className="w-2/5 rounded-lg border-2 border-default">
+                      <div className="h-5 w-2/5 rounded-lg bg-default-200"></div>
+                    </Skeleton>
+                  </div>
+                ) : (
+                  <div className="flex flex-col">
+                    <div className="text-2xl font-semibold capitalize">{`${getCollection.data?.name} by ${getCollection.data?.profile.username}`}</div>
+                    <div className="flex items-center">
+                      <div>{`Items ${getCollection.data?.totalProducts}`}</div>
+                      <Icon icon="mdi:dot" className="text-4xl" />
+                      <div>
+                        <span>Created </span>
+                        <b>
+                          {new Date(
+                            getCollection.data?.createdAt || "",
+                          ).toLocaleDateString("en-US", {
+                            month: "short", // "short" cho tên tháng viết tắt, ví dụ: "Jul"
+                            year: "numeric", // "numeric" cho năm đầy đủ, ví dụ: "2023"
+                          })}
+                        </b>
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
               </div>
-              <div className="flex gap-10">
-                <div>
-                  <div className="text-xl font-semibold">
-                    {getCollection.data?.totalVolume} USD
+              {getCollection.isLoading ? (
+                <div className="flex w-[30%] gap-10">
+                  <div className="flex w-full flex-col gap-2">
+                    <Skeleton className="w-3/5 rounded-lg border-2 border-default">
+                      <div className="h-5 w-3/5 rounded-lg bg-default-200"></div>
+                    </Skeleton>
+                    <Skeleton className="w-full rounded-lg border-2 border-default">
+                      <div className="h-5 w-full rounded-lg bg-default-200"></div>
+                    </Skeleton>
                   </div>
-                  <div>Total volume</div>
-                </div>
-                <div>
-                  <div className="text-xl font-semibold">
-                    {getCollection.data?.floorPrice} USD
+                  <div className="flex w-full flex-col gap-2">
+                    <Skeleton className="w-4/5 rounded-lg border-2 border-default">
+                      <div className="h-5 w-4/5 rounded-lg bg-default-200"></div>
+                    </Skeleton>
+                    <Skeleton className="w-3/5 rounded-lg border-2 border-default">
+                      <div className="h-5 w-3/5 rounded-lg bg-default-200"></div>
+                    </Skeleton>
                   </div>
-                  <div>Floor price</div>
                 </div>
-              </div>
+              ) : (
+                <div className="flex gap-10">
+                  <div>
+                    <div className="text-xl font-semibold">
+                      {getCollection.data?.totalVolume.toLocaleString("de-DE")}{" "}
+                      USD
+                    </div>
+                    <div>Total volume</div>
+                  </div>
+                  <div>
+                    <div className="text-xl font-semibold">
+                      {getCollection.data?.floorPrice.toLocaleString("de-DE")}{" "}
+                      USD
+                    </div>
+                    <div>Floor price</div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
           <div className="flex flex-col pb-20">
             <Accordion variant="splitted" className="px-default">
               <AccordionItem aria-label="Description" title="Description">
-                {getCollection.data?.description}
+                {getCollection.isLoading ? (
+                  <Skeleton className="w-full rounded-lg">
+                    <div className="h-3 w-full rounded-lg bg-default-200"></div>
+                  </Skeleton>
+                ) : (
+                  getCollection.data?.description
+                )}
               </AccordionItem>
             </Accordion>
             <div className="relative flex w-full flex-col gap-5 pt-5">
@@ -224,7 +298,13 @@ export default function Collection() {
                 <Divider />
               </div>
               <div className="sticky top-16 z-20 flex w-full items-center gap-5 bg-background/70 px-default py-3 pt-5 backdrop-blur-xl">
-                <div>{getCollection.data?.totalProducts} results</div>
+                {getCollection.isLoading ? (
+                  <Skeleton className="w-full max-w-20 rounded-lg">
+                    <div className="h-5 w-full rounded-lg bg-default-200"></div>
+                  </Skeleton>
+                ) : (
+                  <div>{getCollection.data?.totalProducts} results</div>
+                )}
                 <div className="flex h-full w-full flex-1 gap-5">
                   <Input
                     size="lg"
@@ -258,36 +338,41 @@ export default function Collection() {
                   <Accordion
                     className="sticky top-40"
                     selectionMode="multiple"
+                    showDivider={!!user.email}
                     defaultExpandedKeys={["owner", "price"]}
                   >
-                    <AccordionItem
-                      key="owner"
-                      classNames={{
-                        heading: "font-semibold",
-                      }}
-                      aria-label="Owner"
-                      title="Owner"
-                      className="pb-2"
-                    >
-                      <RadioGroup
-                        color="secondary"
-                        size="lg"
+                    {user.email ? (
+                      <AccordionItem
+                        key="owner"
                         classNames={{
-                          wrapper: "gap-5",
+                          heading: "font-semibold",
                         }}
-                        onValueChange={(value) => {
-                          setIsFilterOwner(value === "owner")
-                        }}
-                        defaultValue="all"
+                        aria-label="Owner"
+                        title="Owner"
+                        className="pb-2"
                       >
-                        <Radio value="all" className="max-w-full">
-                          All
-                        </Radio>
-                        <Radio value="owner" className="max-w-full">
-                          Me
-                        </Radio>
-                      </RadioGroup>
-                    </AccordionItem>
+                        <RadioGroup
+                          color="secondary"
+                          size="lg"
+                          classNames={{
+                            wrapper: "gap-5",
+                          }}
+                          onValueChange={(value) => {
+                            setIsFilterOwner(value === "owner")
+                          }}
+                          defaultValue="all"
+                        >
+                          <Radio value="all" className="max-w-full">
+                            All
+                          </Radio>
+                          <Radio value="owner" className="max-w-full">
+                            Me
+                          </Radio>
+                        </RadioGroup>
+                      </AccordionItem>
+                    ) : (
+                      <AccordionItem as="noscript"></AccordionItem>
+                    )}
                     <AccordionItem
                       key="price"
                       aria-label="Price"
@@ -341,95 +426,121 @@ export default function Collection() {
                   </Accordion>
                 </div>
 
-                <div className="flex-1">
-                  {getProductList.data &&
-                    getProductList.data?.pages.map((page, idx) => (
-                      <div key={idx} className="grid grid-cols-5 gap-5">
-                        {page.data?.map((product, index) => (
-                          <Card
-                            as="div"
-                            shadow="sm"
-                            key={index}
-                            isPressable
-                            className="hover:-translate-y-1 hover:shadow-xl [&:hover>div>#buy]:translate-y-0"
-                            onClick={() => navigate(`/product/${product.id}`)}
-                          >
-                            <CardBody className="overflow-visible p-0">
-                              <Image
-                                shadow="sm"
-                                radius="lg"
-                                width="100%"
-                                alt={product.name}
-                                className="h-48 w-full object-cover"
-                                src={product.imageUrl}
-                              />
-                            </CardBody>
-                            <CardFooter className="flex flex-col items-start px-0 pb-0 pt-3">
-                              <div className="line-clamp-1 px-3 text-start font-semibold capitalize">
-                                {product.name}
-                              </div>
-                              <div className="flex w-full items-start gap-2 px-3">
-                                <div className="text-default-500">Price:</div>
-                                <div className="font-semibold">{`${product.price} USD`}</div>
-                              </div>
-                              <div
-                                id="buy"
-                                className="flex w-full translate-y-full pt-2 transition-all"
-                              >
-                                <Button
-                                  color="secondary"
-                                  radius="none"
-                                  className="flex-1 border-r-1"
-                                  onClick={() => {
-                                    if (!user.email) {
-                                      return disclosureLogin.onOpen()
-                                    }
-                                  }}
-                                >
-                                  Buy now
-                                </Button>
-                                <Button
-                                  color="secondary"
-                                  isIconOnly
-                                  radius="none"
-                                  className="px-2"
-                                  children={
-                                    isRemoveProductFromCart(product.id) ? (
-                                      <Icon
-                                        icon="mdi:cart-off"
-                                        className="text-2xl"
-                                      />
-                                    ) : (
-                                      <Icon
-                                        icon="mdi:cart-outline"
-                                        className="text-2xl"
-                                      />
-                                    )
-                                  }
-                                  onClick={() => {
-                                    if (!user.email) {
-                                      return disclosureLogin.onOpen()
-                                    }
-                                    isRemoveProductFromCart(product.id)
-                                      ? handleRemoveProductFromCart(
-                                          product.id,
-                                          user.cart.id,
-                                        )
-                                      : handleAddProductToCart(
-                                          user.cart.id,
-                                          product.id,
-                                        )
-                                  }}
+                {getProductList.isLoading ? (
+                  <div className="flex-1">
+                    <LoadingCollectionList
+                      quality={15}
+                      wrapperClass="grid-cols-5"
+                    />
+                  </div>
+                ) : (
+                  <div className="flex flex-1 flex-col gap-5">
+                    {getProductList.data &&
+                      getProductList.data.pages.map((page, idx) => (
+                        <div key={idx} className="grid grid-cols-5 gap-5">
+                          {page.data?.map((product, index) => (
+                            <Card
+                              as="div"
+                              shadow="sm"
+                              key={index}
+                              isPressable
+                              className="hover:-translate-y-1 hover:shadow-xl [&:hover>div>#buy]:translate-y-0"
+                              onClick={() => navigate(`/product/${product.id}`)}
+                            >
+                              <CardBody className="overflow-visible p-0">
+                                <Image
+                                  shadow="sm"
+                                  radius="lg"
+                                  width="100%"
+                                  alt={product.name}
+                                  className="h-48 w-full object-cover"
+                                  src={product.imageUrl}
                                 />
-                              </div>
-                            </CardFooter>
-                          </Card>
-                        ))}
-                      </div>
-                    ))}
+                              </CardBody>
+                              <CardFooter className="flex flex-col items-start px-0 pb-0 pt-3">
+                                <div className="line-clamp-1 px-3 text-start font-semibold capitalize">
+                                  {product.name}
+                                </div>
+                                <div className="flex w-full items-start gap-2 px-3">
+                                  <div className="text-default-500">Price:</div>
+                                  <div className="font-semibold">{`${product.price.toLocaleString("de-DE")} USD`}</div>
+                                </div>
+                                <div
+                                  id="buy"
+                                  className="flex w-full translate-y-full pt-2 transition-all"
+                                >
+                                  <Button
+                                    color="secondary"
+                                    radius="none"
+                                    className="flex-1 border-r-1"
+                                    onClick={() => {
+                                      if (!user.email) {
+                                        return disclosureLogin.onOpen()
+                                      }
 
-                  {getProductList.hasNextPage && <div ref={ref}></div>}
-                </div>
+                                      setOrder({
+                                        cart_items: [
+                                          {
+                                            product_id: product.id,
+                                            quantity: 1,
+                                          },
+                                        ],
+                                      })
+
+                                      disclosureDialogPaymentConfirm.onOpen()
+                                    }}
+                                  >
+                                    Buy now
+                                  </Button>
+                                  <Button
+                                    color="secondary"
+                                    isIconOnly
+                                    radius="none"
+                                    className="px-2"
+                                    children={
+                                      isRemoveProductFromCart(product.id) ? (
+                                        <Icon
+                                          icon="mdi:cart-off"
+                                          className="text-2xl"
+                                        />
+                                      ) : (
+                                        <Icon
+                                          icon="mdi:cart-outline"
+                                          className="text-2xl"
+                                        />
+                                      )
+                                    }
+                                    onClick={() => {
+                                      if (!user.email) {
+                                        return disclosureLogin.onOpen()
+                                      }
+                                      isRemoveProductFromCart(product.id)
+                                        ? handleRemoveProductFromCart(
+                                            product.id,
+                                          )
+                                        : handleAddProductToCart(
+                                            user.cart.id,
+                                            product.id,
+                                          )
+                                    }}
+                                  />
+                                </div>
+                              </CardFooter>
+                            </Card>
+                          ))}
+                        </div>
+                      ))}
+
+                    {getProductList.isFetchingNextPage && (
+                      <LoadingCollectionList
+                        quality={10}
+                        wrapperClass="grid-cols-5"
+                      />
+                    )}
+
+                    {getProductList.hasNextPage && <div ref={ref}></div>}
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -447,6 +558,38 @@ export default function Collection() {
       >
         <ModalContent>
           {(onClose) => <LoginModal onClose={onClose} />}
+        </ModalContent>
+      </Modal>
+      <Modal
+        size="lg"
+        isDismissable={false}
+        isOpen={disclosureDialogPaymentConfirm.isOpen}
+        onClose={disclosureDialogPaymentConfirm.onClose}
+      >
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <DialogModal
+                textHeader="Confirm Payment"
+                body={
+                  <span>
+                    Are you sure you want to <strong>buy</strong> this product?
+                  </span>
+                }
+                btnAcceptProps={{
+                  color: "secondary",
+                  children: "Confirm",
+                  isLoading: createOrder.isPending,
+                  onClick: () => {
+                    if (order) {
+                      handleCreateOrder(order)
+                    }
+                  },
+                }}
+                onClose={onClose}
+              />
+            </>
+          )}
         </ModalContent>
       </Modal>
     </>

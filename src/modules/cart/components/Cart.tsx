@@ -22,6 +22,7 @@ import { CartProducts } from "types/cartProducts"
 import { useChangeQuantityProductFromCart } from "../services/changeQuantityProductFromCart"
 import { CreateOrderRequest, useCreateOrder } from "../services/createOrder"
 import { useGetProductListFromCart } from "../services/getProductListFromCart"
+import { useRemoveAllProductFromCart } from "../services/removeAllProductFromCart"
 import { useRemoveProductFromCart } from "../services/removeProductFromCart"
 
 interface Props {
@@ -57,6 +58,7 @@ export default function Cart({ open, cycleOpen }: Props) {
     !!user.cart.id,
   )
   const removeProductFromCart = useRemoveProductFromCart()
+  const removeAllProductFromCart = useRemoveAllProductFromCart()
   const changeQuantityProductFromCart = useChangeQuantityProductFromCart()
   const createOrder = useCreateOrder()
 
@@ -72,13 +74,16 @@ export default function Cart({ open, cycleOpen }: Props) {
   })
 
   const debouncedQuantity = useCallback(
-    debounce((index: number, productId: number, cartId: number) => {
-      changeQuantityProductFromCart.mutate({
-        quantity: methods.watch(`products.${index}.quantity`),
-        productId,
-        cartId,
-      })
-    }, 500),
+    debounce(
+      (_index: number, productId: number, cartId: number, quantity: number) => {
+        changeQuantityProductFromCart.mutate({
+          quantity,
+          productId,
+          cartId,
+        })
+      },
+      500,
+    ),
     [],
   )
 
@@ -111,17 +116,17 @@ export default function Cart({ open, cycleOpen }: Props) {
 
   const handleQuantityChange = (index: number, value: string) => {
     const newQuantity = Number(value)
-    if (newQuantity < 1) {
-      methods.setValue(`products.${index}.quantity`, 1)
-    } else {
-      methods.setValue(`products.${index}.quantity`, newQuantity)
+
+    if (newQuantity < 2) {
+      return methods.setValue(`products.${index}.quantity`, 1)
     }
+
+    methods.setValue(`products.${index}.quantity`, newQuantity)
   }
 
-  const handleRemoveProductFromCart = (productId: number, cartId: number) => {
+  const handleRemoveProductFromCart = (productId: number) => {
     removeProductFromCart.mutate(
       {
-        cartId,
         productId,
       },
       {
@@ -138,9 +143,22 @@ export default function Cart({ open, cycleOpen }: Props) {
     )
   }
 
+  const handleRemoveAllProductFromCart = () => {
+    removeAllProductFromCart.mutate(undefined, {
+      onSuccess: () => {
+        queryClient
+          .refetchQueries({
+            queryKey: ["getProductListFromCart"],
+          })
+          .then(() => {
+            toast.success("Delete all product from cart successfully")
+          })
+      },
+    })
+  }
+
   const onSubmit = (data: { products: CartProducts[] }) => {
     setOrder({
-      total_price: totalPrice(),
       cart_items: data.products.map((cartproducts) => ({
         product_id: cartproducts.productId,
         quantity: cartproducts.quantity,
@@ -152,14 +170,17 @@ export default function Cart({ open, cycleOpen }: Props) {
     createOrder.mutate(order, {
       onSuccess: async (data) => {
         setUser({ ...user, walletBalance: data.walletBalance })
-        await queryClient
-          .refetchQueries({
+        await Promise.all([
+          queryClient.refetchQueries({
             queryKey: ["getProductListFromCart"],
-          })
-          .then(() => {
-            disclosureDialogPaymentConfirm.onClose()
-            toast.success("Order Payment successfully")
-          })
+          }),
+          queryClient.refetchQueries({
+            queryKey: ["getProduct"],
+          }),
+        ]).then(() => {
+          disclosureDialogPaymentConfirm.onClose()
+          toast.success("Order Payment successfully")
+        })
       },
     })
   }
@@ -224,13 +245,19 @@ export default function Cart({ open, cycleOpen }: Props) {
                   <div className="flex max-h-[80vh] flex-col items-center border-y-1 p-5 pr-2">
                     <div className="flex h-full w-full flex-1 flex-col items-center">
                       <div className="flex h-full w-full flex-col gap-5">
-                        <div className="flex w-full justify-between gap-5">
+                        <div className="flex w-full items-center justify-between gap-5">
                           <div className="font-semibold">
                             {fields.length} item
                           </div>
-                          <div className="cursor-pointer font-semibold">
+                          <Button
+                            color="danger"
+                            variant="light"
+                            onClick={() => handleRemoveAllProductFromCart()}
+                            isLoading={removeAllProductFromCart.isPending}
+                            className="cursor-pointer font-semibold"
+                          >
                             Clear all
-                          </div>
+                          </Button>
                         </div>
                         <div className="flex h-full flex-col gap-5 overflow-y-auto pr-2 pt-2">
                           {cart.cartProducts.map((cartProduct, idx) => (
@@ -273,20 +300,36 @@ export default function Cart({ open, cycleOpen }: Props) {
                                       type="number"
                                       variant="bordered"
                                       color="secondary"
-                                      defaultValue={cartProduct.quantity.toString()}
-                                      value={field.value.toString()}
-                                      onValueChange={(value) => {
-                                        handleQuantityChange(idx, value)
-                                        debouncedQuantity(
-                                          idx,
-                                          cartProduct.productId,
-                                          cartProduct.cartId,
-                                        )
-                                      }}
                                       className="max-w-44"
                                       classNames={{
                                         input: "text-center",
                                       }}
+                                      defaultValue={cartProduct.quantity.toString()}
+                                      value={methods
+                                        .watch(`products.${idx}.quantity`)
+                                        .toString()}
+                                      onChange={(e) => {
+                                        handleQuantityChange(
+                                          idx,
+                                          e.target.value,
+                                        )
+                                        if (
+                                          Number(e.target.value) <
+                                          cartProduct.product.quantity
+                                        ) {
+                                          debouncedQuantity(
+                                            idx,
+                                            cartProduct.productId,
+                                            cartProduct.cartId,
+                                            Number(e.target.value),
+                                          )
+                                        }
+                                      }}
+                                      isInvalid={
+                                        field.value >
+                                        cartProduct.product.quantity
+                                      }
+                                      errorMessage="Quantity exceeds stock"
                                       startContent={
                                         <button className="flex items-center">
                                           <Icon
@@ -298,6 +341,7 @@ export default function Cart({ open, cycleOpen }: Props) {
                                                 idx,
                                                 cartProduct.productId,
                                                 cartProduct.cartId,
+                                                field.value,
                                               )
                                             }}
                                           />
@@ -314,6 +358,7 @@ export default function Cart({ open, cycleOpen }: Props) {
                                                 idx,
                                                 cartProduct.productId,
                                                 cartProduct.cartId,
+                                                field.value,
                                               )
                                             }}
                                           />
@@ -327,7 +372,6 @@ export default function Cart({ open, cycleOpen }: Props) {
                                   onClick={() =>
                                     handleRemoveProductFromCart(
                                       cartProduct.productId,
-                                      cartProduct.cartId,
                                     )
                                   }
                                   className="absolute -top-2 right-0 z-10"

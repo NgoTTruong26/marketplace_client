@@ -4,7 +4,6 @@ import { Cart } from "types/cart"
 
 export interface RemoveProductFromCartRequest {
   productId: number
-  cartId: number
 }
 export interface RemoveProductFromCartResponse extends Cart {}
 
