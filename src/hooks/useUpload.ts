@@ -20,6 +20,7 @@ export default function useUpload<T = unknown>({
   multiple,
   onSuccess,
 }: UseUploadProps<T>) {
+  console.log(123)
   const { mutate, isPending } = useMutation({
     mutationFn: (data: FormData) => api.post<T>(url, data),
   })

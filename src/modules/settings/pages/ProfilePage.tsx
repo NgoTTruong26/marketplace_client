@@ -169,7 +169,6 @@ export default function ProfilePage() {
               <div className="flex flex-col gap-4">
                 <div className="font-semibold">Profile Image</div>
                 <div
-                  {...getRootPropsAvatarUrl()}
                   className={clsx(
                     "relative h-40 w-40 overflow-hidden rounded-full",
                     {
@@ -186,7 +185,10 @@ export default function ProfilePage() {
                         src={avatarUrl}
                         className="h-full w-full cursor-pointer"
                       />
-                      <div className="absolute top-0 flex h-full w-full cursor-pointer items-center justify-center bg-[#1212120a] opacity-0 transition duration-150 hover:opacity-100">
+                      <div
+                        {...getRootPropsAvatarUrl()}
+                        className="absolute top-0 flex h-full w-full cursor-pointer items-center justify-center bg-[#1212120a] opacity-0 transition duration-150 hover:opacity-100"
+                      >
                         <Icon
                           icon="tdesign:edit"
                           className="text-3xl text-white"
@@ -199,7 +201,6 @@ export default function ProfilePage() {
               <div className="flex flex-col gap-4">
                 <div className="font-semibold">Profile Banner</div>
                 <div
-                  {...getRootPropsBannerUrl()}
                   className={clsx(
                     "relative h-40 w-40 overflow-hidden rounded-2xl",
                     {
@@ -217,7 +218,10 @@ export default function ProfilePage() {
                         src={bannerUrl}
                         className="h-full w-full cursor-pointer"
                       />
-                      <div className="absolute top-0 flex h-full w-full cursor-pointer items-center justify-center bg-[#1212120a] opacity-0 transition duration-150 hover:opacity-100">
+                      <div
+                        {...getRootPropsBannerUrl()}
+                        className="absolute top-0 flex h-full w-full cursor-pointer items-center justify-center bg-[#1212120a] opacity-0 transition duration-150 hover:opacity-100"
+                      >
                         <Icon
                           icon="tdesign:edit"
                           className="text-3xl text-white"
