@@ -8,7 +8,7 @@ interface LoadingIconProps {
 export default function LoadingIcon({ size = "md" }: LoadingIconProps) {
   return (
     <Spinner
-      className="w-full h-full"
+      className="h-full w-full"
       classNames={{
         wrapper: clsx({
           "w-5 h-5": size === "sm",

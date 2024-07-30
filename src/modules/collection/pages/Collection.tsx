@@ -21,17 +21,20 @@ import {
 } from "@nextui-org/react"
 import clsx from "clsx"
 import DialogModal from "components/common/DialogModal"
+import LoadingIcon from "components/common/LoadingIcon"
 import { queryClient } from "configs/queryClient"
 import debounce from "lodash.debounce"
 import LoginModal from "modules/auth/components/LoginModal"
 import { useAddProductToCart } from "modules/cart/services/addProductToCart"
 import {
+  CartItem,
   CreateOrderRequest,
   useCreateOrder,
 } from "modules/cart/services/createOrder"
 import { useRemoveProductFromCart } from "modules/cart/services/removeProductFromCart"
 import LoadingCollectionList from "modules/home/components/LoadingCollectionList"
 import { useGetProductList } from "modules/product/services/getProductList"
+import WalletModal from "modules/user/components/WalletModal"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useInView } from "react-intersection-observer"
 import { Navigate, useNavigate, useParams } from "react-router-dom"
@@ -62,6 +65,8 @@ export default function Collection() {
 
   const disclosureLogin = useDisclosure()
   const disclosureDialogPaymentConfirm = useDisclosure()
+  const disclosureDialogNotification = useDisclosure()
+  const disclosureWallet = useDisclosure()
 
   const [searchCharacters, setSearchCharacters] = useState<string>()
   const [isFilterOwner, setIsFilterOwner] = useState<boolean>(false)
@@ -73,7 +78,7 @@ export default function Collection() {
     maxPrice?: number
   }>()
 
-  const [order, setOrder] = useState<CreateOrderRequest>()
+  const [order, setOrder] = useState<{ cart_items: CartItem[] }>()
 
   const getCollection = useGetCollection(
     Number(collectionId),
@@ -312,6 +317,14 @@ export default function Collection() {
                     color="secondary"
                     placeholder="Type to search..."
                     startContent={<Icon icon="icon-park-outline:search" />}
+                    endContent={
+                      getProductList.isFetching &&
+                      !getProductList.isFetchingNextPage && (
+                        <div className="flex items-center">
+                          <LoadingIcon size="sm" />
+                        </div>
+                      )
+                    }
                     className="h-full flex-1"
                     classNames={{
                       inputWrapper: "h-full",
@@ -483,6 +496,7 @@ export default function Collection() {
                                           {
                                             product_id: product.id,
                                             quantity: 1,
+                                            price: product.price,
                                           },
                                         ],
                                       })
@@ -582,6 +596,10 @@ export default function Collection() {
                   isLoading: createOrder.isPending,
                   onClick: () => {
                     if (order) {
+                      if (user.walletBalance < order.cart_items[0].price) {
+                        disclosureDialogNotification.onOpen()
+                        return
+                      }
                       handleCreateOrder(order)
                     }
                   },
@@ -590,6 +608,48 @@ export default function Collection() {
               />
             </>
           )}
+        </ModalContent>
+      </Modal>
+      <Modal
+        size="lg"
+        isDismissable={false}
+        isOpen={disclosureDialogNotification.isOpen}
+        onClose={disclosureDialogNotification.onClose}
+      >
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <DialogModal
+                textHeader="Notification"
+                body={
+                  <span>
+                    You don't have enough money to purchase this product. Would
+                    you like to add more funds?
+                  </span>
+                }
+                btnAcceptProps={{
+                  color: "secondary",
+                  children: "Confirm",
+                  isLoading: createOrder.isPending,
+                  onClick: () => {
+                    disclosureWallet.onOpen()
+                    disclosureDialogNotification.onClose()
+                  },
+                }}
+                onClose={onClose}
+              />
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+      <Modal
+        size="lg"
+        isOpen={disclosureWallet.isOpen}
+        onClose={disclosureWallet.onClose}
+        className="p-4"
+      >
+        <ModalContent>
+          <WalletModal />
         </ModalContent>
       </Modal>
     </>

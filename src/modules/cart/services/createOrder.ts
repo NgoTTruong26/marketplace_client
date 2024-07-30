@@ -1,13 +1,14 @@
 import { useMutation } from "@tanstack/react-query"
 import { api } from "configs/api"
 
-interface CartItem {
+export interface CartItem {
   product_id: number
   quantity: number
+  price: number
 }
 
 export interface CreateOrderRequest {
-  cart_items: CartItem[]
+  cart_items: Omit<CartItem, "price">[]
 }
 export interface CreateOrderResponse {
   data: {

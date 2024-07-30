@@ -5,7 +5,6 @@ import {
   Input,
   Modal,
   ModalContent,
-  Tooltip,
   useDisclosure,
 } from "@nextui-org/react"
 import clsx from "clsx"
@@ -13,6 +12,7 @@ import DialogModal from "components/common/DialogModal"
 import { queryClient } from "configs/queryClient"
 import { AnimatePresence, Cycle, Variants, motion } from "framer-motion"
 import debounce from "lodash.debounce"
+import WalletModal from "modules/user/components/WalletModal"
 import { useCallback, useEffect, useState } from "react"
 import { Controller, useFieldArray, useForm } from "react-hook-form"
 import { toast } from "sonner"
@@ -52,6 +52,8 @@ export default function Cart({ open, cycleOpen }: Props) {
   const [order, setOrder] = useState<CreateOrderRequest>()
 
   const disclosureDialogPaymentConfirm = useDisclosure()
+  const disclosureDialogNotification = useDisclosure()
+  const disclosureWallet = useDisclosure()
 
   const getProductListFromCart = useGetProductListFromCart(
     user.cart.id,
@@ -395,34 +397,15 @@ export default function Cart({ open, cycleOpen }: Props) {
                     </div>
                   </div>
                   <div className="px-5 pb-10">
-                    {totalPrice() > Number(user.walletBalance) ? (
-                      <Tooltip
-                        size="lg"
-                        content="You don't have enough money to buy."
-                        color="danger"
-                      >
-                        <div className="cursor-pointer">
-                          <Button
-                            isDisabled
-                            size="lg"
-                            color="secondary"
-                            className="w-full"
-                          >
-                            Complete purchase
-                          </Button>
-                        </div>
-                      </Tooltip>
-                    ) : (
-                      <Button
-                        type="submit"
-                        size="lg"
-                        color="secondary"
-                        className="w-full"
-                        onPress={disclosureDialogPaymentConfirm.onOpen}
-                      >
-                        Complete purchase
-                      </Button>
-                    )}
+                    <Button
+                      type="submit"
+                      size="lg"
+                      color="secondary"
+                      className="w-full"
+                      onPress={disclosureDialogPaymentConfirm.onOpen}
+                    >
+                      Complete purchase
+                    </Button>
                   </div>
                 </>
               ) : (
@@ -458,6 +441,10 @@ export default function Cart({ open, cycleOpen }: Props) {
                   isLoading: createOrder.isPending,
                   onClick: () => {
                     if (order) {
+                      if (user.walletBalance < totalPrice()) {
+                        disclosureDialogNotification.onOpen()
+                        return
+                      }
                       handleCreateOrder(order)
                     }
                   },
@@ -466,6 +453,48 @@ export default function Cart({ open, cycleOpen }: Props) {
               />
             </>
           )}
+        </ModalContent>
+      </Modal>
+      <Modal
+        size="lg"
+        isDismissable={false}
+        isOpen={disclosureDialogNotification.isOpen}
+        onClose={disclosureDialogNotification.onClose}
+      >
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <DialogModal
+                textHeader="Notification"
+                body={
+                  <span>
+                    You don't have enough money to purchase this product. Would
+                    you like to add more funds?
+                  </span>
+                }
+                btnAcceptProps={{
+                  color: "secondary",
+                  children: "Confirm",
+                  isLoading: createOrder.isPending,
+                  onClick: () => {
+                    disclosureWallet.onOpen()
+                    disclosureDialogNotification.onClose()
+                  },
+                }}
+                onClose={onClose}
+              />
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+      <Modal
+        size="lg"
+        isOpen={disclosureWallet.isOpen}
+        onClose={disclosureWallet.onClose}
+        className="p-4"
+      >
+        <ModalContent>
+          <WalletModal />
         </ModalContent>
       </Modal>
     </form>

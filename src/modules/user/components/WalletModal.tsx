@@ -89,8 +89,8 @@ export default function WalletModal() {
                 y1="20"
                 y2="52"
               >
-                <stop stop-color="#2081E2"></stop>
-                <stop offset="1" stop-color="#003D7A"></stop>
+                <stop stopColor="#2081E2"></stop>
+                <stop offset="1" stopColor="#003D7A"></stop>
               </linearGradient>
               <linearGradient
                 gradientUnits="userSpaceOnUse"
@@ -100,8 +100,8 @@ export default function WalletModal() {
                 y1="28"
                 y2="100"
               >
-                <stop stop-color="#54CCFF"></stop>
-                <stop offset="1" stop-color="#42A0FF"></stop>
+                <stop stopColor="#54CCFF"></stop>
+                <stop offset="1" stopColor="#42A0FF"></stop>
               </linearGradient>
             </defs>
           </svg>

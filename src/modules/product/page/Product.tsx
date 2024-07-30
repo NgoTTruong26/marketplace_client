@@ -19,11 +19,13 @@ import { queryClient } from "configs/queryClient"
 import LoginModal from "modules/auth/components/LoginModal"
 import { useAddProductToCart } from "modules/cart/services/addProductToCart"
 import {
+  CartItem,
   CreateOrderRequest,
   useCreateOrder,
 } from "modules/cart/services/createOrder"
 import { useRemoveProductFromCart } from "modules/cart/services/removeProductFromCart"
 import LoadingCollectionList from "modules/home/components/LoadingCollectionList"
+import WalletModal from "modules/user/components/WalletModal"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom"
 import { toast } from "sonner"
@@ -44,10 +46,12 @@ export default function Product() {
     return <Navigate to="/" />
   }
   const [quantity, setQuantity] = useState<number>(1)
-  const [order, setOrder] = useState<CreateOrderRequest>()
+  const [order, setOrder] = useState<{ cart_items: CartItem[] }>()
 
   const disclosureLogin = useDisclosure()
   const disclosureDialogPaymentConfirm = useDisclosure()
+  const disclosureDialogNotification = useDisclosure()
+  const disclosureWallet = useDisclosure()
 
   const addProductToCart = useAddProductToCart()
   const removeProductFromCart = useRemoveProductFromCart()
@@ -290,6 +294,7 @@ export default function Product() {
                                 {
                                   product_id: getProduct.data.id,
                                   quantity: quantity,
+                                  price: getProduct.data.price * quantity,
                                 },
                               ],
                             })
@@ -415,6 +420,7 @@ export default function Product() {
                                     {
                                       product_id: product.id,
                                       quantity: 1,
+                                      price: product.price,
                                     },
                                   ],
                                 })
@@ -518,6 +524,10 @@ export default function Product() {
                   isLoading: createOrder.isPending,
                   onClick: () => {
                     if (order) {
+                      if (user.walletBalance < order.cart_items[0].price) {
+                        disclosureDialogNotification.onOpen()
+                        return
+                      }
                       handleCreateOrder(order)
                     }
                   },
@@ -526,6 +536,48 @@ export default function Product() {
               />
             </>
           )}
+        </ModalContent>
+      </Modal>
+      <Modal
+        size="lg"
+        isDismissable={false}
+        isOpen={disclosureDialogNotification.isOpen}
+        onClose={disclosureDialogNotification.onClose}
+      >
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <DialogModal
+                textHeader="Notification"
+                body={
+                  <span>
+                    You don't have enough money to purchase this product. Would
+                    you like to add more funds?
+                  </span>
+                }
+                btnAcceptProps={{
+                  color: "secondary",
+                  children: "Confirm",
+                  isLoading: createOrder.isPending,
+                  onClick: () => {
+                    disclosureWallet.onOpen()
+                    disclosureDialogNotification.onClose()
+                  },
+                }}
+                onClose={onClose}
+              />
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+      <Modal
+        size="lg"
+        isOpen={disclosureWallet.isOpen}
+        onClose={disclosureWallet.onClose}
+        className="p-4"
+      >
+        <ModalContent>
+          <WalletModal />
         </ModalContent>
       </Modal>
     </>
