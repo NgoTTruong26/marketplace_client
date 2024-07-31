@@ -168,7 +168,7 @@ export default function Header() {
                         startContent={
                           <Icon icon="uil:setting" className="text-xl" />
                         }
-                        onPress={() => navigate("settings")}
+                        onPress={() => navigate("/settings")}
                       >
                         Settings
                       </DropdownItem>

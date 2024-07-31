@@ -17,19 +17,19 @@ enum KeySidebar {
   PROFILE = "profile",
   CREATE_COLLECTION = "create-collections",
   CREATE_PRODUCT = "create-products",
-  NOTIFICATIONS = "#",
+  /* NOTIFICATIONS = "#",
   OFFERS = "#",
-  ACCOUNT_SUPPORT = "#",
+  ACCOUNT_SUPPORT = "#", */
   MANAGEMENT = "management",
 }
 
 enum IconSidebar {
   PROFILE = "mingcute:user-4-line",
   CREATE_COLLECTION = "material-symbols:tab-group-outline-rounded",
-  CREATE_PRODUCT = "material-symbols:tab-group-outline-rounded",
-  NOTIFICATIONS = "mi:notification",
+  CREATE_PRODUCT = "ant-design:product-outlined",
+  /*  NOTIFICATIONS = "mi:notification",
   OFFERS = "ic:outline-local-offer",
-  ACCOUNT_SUPPORT = "mdi:shield-outline",
+  ACCOUNT_SUPPORT = "mdi:shield-outline", */
   MANAGEMENT = "ic:twotone-developer-mode",
 }
 
@@ -49,7 +49,7 @@ const sideBar = [
     key: KeySidebar.CREATE_PRODUCT,
     icon: IconSidebar.CREATE_PRODUCT,
   },
-  {
+  /* {
     title: TitleSidebar.NOTIFICATIONS,
     key: KeySidebar.NOTIFICATIONS,
     icon: IconSidebar.NOTIFICATIONS,
@@ -63,7 +63,7 @@ const sideBar = [
     title: TitleSidebar.ACCOUNT_SUPPORT,
     key: KeySidebar.ACCOUNT_SUPPORT,
     icon: IconSidebar.ACCOUNT_SUPPORT,
-  },
+  }, */
   {
     title: TitleSidebar.MANAGEMENT,
     key: KeySidebar.MANAGEMENT,
