@@ -7,7 +7,7 @@ export interface UpdateProfileRequest extends Partial<Profile> {
 }
 export interface UpdateProfileResponse extends Profile {}
 
-export async function updateProfile(data: UpdateProfileRequest) {
+export async function updateProfile(data: FormData) {
   return (await api.patch<UpdateProfileResponse>("/user/profile", data)).data
 }
 

@@ -16,6 +16,7 @@ const defaultUserState: { auth: UserAuth; user: User } = {
     id: NaN,
     email: "",
     profile: {
+      id: NaN,
       avatarUrl: "",
       bannerUrl: "",
       username: "",

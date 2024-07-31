@@ -37,19 +37,32 @@ const AdminDashboard = () => {
   const orders = listOrder.data?.orders
   const [activeTab, setActiveTab] = useState<string>("collections")
 
-  function formatDateToDDMMYYYY(isoString: string): string {
-    const date = new Date(isoString)
 
-    // Get day, month, and year from the Date object
-    const day = date.getUTCDate()
-    const month = date.getUTCMonth() + 1 // Months are zero-based
-    const year = date.getUTCFullYear()
 
-    // Format day and month to always be two digits
-    const dayString = day < 10 ? `0${day}` : `${day}`
-    const monthString = month < 10 ? `0${month}` : `${month}`
+  function convertToVietnamTime(dateString: string): string {
+    const date = new Date(dateString);
 
-    return `${dayString}/${monthString}/${year}`
+    // Vietnam is UTC+7
+    const vietnamOffset = 7 * 60; // 7 hours converted to minutes
+    const localOffset = date.getTimezoneOffset(); // Local offset in minutes
+
+    // Calculate the total offset from UTC to Vietnam time
+    const totalOffset = vietnamOffset + localOffset;
+
+    // Adjust the date by the total offset
+    const vietnamTime = new Date(date.getTime() + totalOffset * 60 * 1000);
+
+    // Get the components of the date
+    const day = String(vietnamTime.getUTCDate()).padStart(2, '0');
+    const month = String(vietnamTime.getUTCMonth() + 1).padStart(2, '0'); // Months are 0-based, so add 1
+    const year = vietnamTime.getUTCFullYear();
+
+    // Get the components of the time
+    const hours = String(vietnamTime.getUTCHours()).padStart(2, '0');
+    const minutes = String(vietnamTime.getUTCMinutes()).padStart(2, '0');
+
+    // Format the date and time
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
   }
 
   const [editingCollection, setEditingCollection] = useState<number | null>(
@@ -177,12 +190,13 @@ const AdminDashboard = () => {
     setViewOrder(order.id)
     setOrderId(order.id)
   }
+  console.log(convertToVietnamTime("2024-07-27 15:36:44.189+00"))
 
   return (
     <div className="admin-dashboard">
       <div className="dashboard-content">
         <div className="sidebar">
-          <h2>Management</h2>
+          {/*<h2>Management</h2>*/}
           <ul>
             <li
               onClick={() => setActiveTab("collections")}
@@ -339,7 +353,7 @@ const AdminDashboard = () => {
 
                             <td>${order.totalPrice}</td>
                             <td>{order.paymentMethod}</td>
-                            <td>{formatDateToDDMMYYYY(order.createdAt)}</td>
+                            <td>{convertToVietnamTime(order.createdAt)}</td>
                             <td>
                               <button
                                 onClick={() => handelViewOrderClick(order)}
