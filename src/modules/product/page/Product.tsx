@@ -199,7 +199,7 @@ export default function Product() {
                   <div className="sticky top-20 flex w-full max-w-3xl flex-col gap-5 rounded-2xl pt-2">
                     <Link
                       to={`/collection/${getProduct.data?.collectionId}`}
-                      className="capitalize text-secondary-700"
+                      className="w-fit capitalize text-secondary-700"
                     >
                       {getProduct.data?.collection.name} by{" "}
                       {getProduct.data?.collection.profile.username}

@@ -8,18 +8,13 @@ export default function AuthLayout({ children }: PropsWithChildren) {
 
   const { auth, setUser } = useUser()
 
-  const getUserProfile = useGetUserProfile()
+  const getUserProfile = useGetUserProfile(!!auth.accessToken)
 
   useEffect(() => {
-    if (auth.accessToken)
-      getUserProfile.mutate(undefined, {
-        onSuccess(data) {
-          if (data.email) {
-            setUser(data)
-          }
-        },
-      })
-  }, [auth, setUser])
+    if (getUserProfile.data) {
+      setUser(getUserProfile.data)
+    }
+  }, [getUserProfile.data, setUser])
 
   useEffect(() => {
     if (
