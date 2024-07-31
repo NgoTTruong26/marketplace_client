@@ -1,19 +1,15 @@
 import { yupResolver } from "@hookform/resolvers/yup"
 import { Icon } from "@iconify-icon/react/dist/iconify.mjs"
 import { Avatar, Button, Input } from "@nextui-org/react"
-import { AxiosResponse } from "axios"
 import clsx from "clsx"
-import LoadingIcon from "components/common/LoadingIcon"
 import Field from "components/core/field"
-import { accept, maxSize } from "constants/upload"
-import useUpload from "hooks/useUpload"
 import {
   UpdateProfileRequest,
   useUpdateProfile,
 } from "modules/user/services/updateProfile"
 import { useState } from "react"
 import { FormProvider, useForm } from "react-hook-form"
-import toast from "react-hot-toast"
+import { toast } from "sonner"
 import { useUser } from "store/user"
 import * as yup from "yup"
 
@@ -29,6 +25,8 @@ export default function ProfilePage() {
 
   const [avatarUrl, setAvatarUrl] = useState<string>(user.profile.avatarUrl)
   const [bannerUrl, setBannerUrl] = useState<string>(user.profile.bannerUrl)
+  const [avatarFile, setAvatarFile] = useState<File | null>(null)
+  const [bannerFile, setBannerFile] = useState<File | null>(null)
 
   const methods = useForm<Omit<UpdateProfileRequest, "userId">>({
     defaultValues: {
@@ -41,55 +39,41 @@ export default function ProfilePage() {
     mode: "onChange",
   })
 
-  const onSuccessAvatarUrl = (data: AxiosResponse<string>) => {
-    setAvatarUrl(data.data)
-    methods.setValue("avatarUrl", data.data, {
-      shouldDirty: true,
-      shouldValidate: true,
-    })
-
-    return data.data
+  const handelAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      setAvatarUrl(URL.createObjectURL(file))
+      setAvatarFile(file)
+    }
   }
 
-  const onSuccessBannerUrl = (data: AxiosResponse<string>) => {
-    setBannerUrl(data.data)
-    methods.setValue("bannerUrl", data.data, {
-      shouldDirty: true,
-      shouldValidate: true,
-    })
-
-    return data.data
+  const handleBannerChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      setBannerUrl(URL.createObjectURL(file))
+      setBannerFile(file)
+    }
   }
-
-  const {
-    getRootProps: getRootPropsAvatarUrl,
-    isPending: isPendingUploadAvatarUrl,
-  } = useUpload<string>({
-    url: "/upload/image",
-    accept,
-    maxSize,
-    onSuccess: onSuccessAvatarUrl,
-  })
-
-  const {
-    getRootProps: getRootPropsBannerUrl,
-    isPending: isPendingUploadBannerUrl,
-  } = useUpload<string>({
-    url: "/upload/image",
-    accept,
-    maxSize,
-    onSuccess: onSuccessBannerUrl,
-  })
 
   const { mutate, isPending: isPendingUpdate } = useUpdateProfile()
 
-  const onSubmit = (data: UpdateProfileRequest) => {
-    toast.loading("Profile updated successfully")
+  const onSubmit = async (data: UpdateProfileRequest) => {
+    const formData = new FormData()
+    formData.append("username", data.username)
+    formData.append("bio", data.bio || "")
+    if (avatarFile) {
+      formData.append("avatar", avatarFile)
+    }
+    if (bannerFile) {
+      formData.append("banner", bannerFile)
+    }
 
-    mutate(data, {
+    mutate(formData, {
       onSuccess: (data) => {
-        setUser({ ...user, profile: data })
+        console.log(123)
+        console.log(data)
         toast.success("Profile updated successfully")
+        setUser({ ...user, profile: data })
       },
     })
   }
@@ -171,31 +155,26 @@ export default function ProfilePage() {
                 <div
                   className={clsx(
                     "relative h-40 w-40 overflow-hidden rounded-full",
-                    {
-                      "border-4 border-dotted border-secondary":
-                        isPendingUploadAvatarUrl,
-                    },
+                    // {
+                    //   "border-4 border-dotted border-secondary"
+                    //
+                    // },
                   )}
                 >
-                  {isPendingUploadAvatarUrl ? (
-                    <LoadingIcon />
-                  ) : (
-                    <>
-                      <Avatar
-                        src={avatarUrl}
-                        className="h-full w-full cursor-pointer"
-                      />
-                      <div
-                        {...getRootPropsAvatarUrl()}
-                        className="absolute top-0 flex h-full w-full cursor-pointer items-center justify-center bg-[#1212120a] opacity-0 transition duration-150 hover:opacity-100"
-                      >
-                        <Icon
-                          icon="tdesign:edit"
-                          className="text-3xl text-white"
-                        />
-                      </div>
-                    </>
-                  )}
+                  <Avatar
+                    src={avatarUrl}
+                    className="h-full w-full cursor-pointer"
+                  />
+
+                  <div className="absolute top-0 flex h-full w-full cursor-pointer items-center justify-center bg-[#1212120a] opacity-0 transition duration-150 hover:opacity-100">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="absolute h-full w-full cursor-pointer opacity-0"
+                      onChange={handelAvatarChange}
+                    />
+                    <Icon icon="tdesign:edit" className="text-3xl text-white" />
+                  </div>
                 </div>
               </div>
               <div className="flex flex-col gap-4">
@@ -203,32 +182,27 @@ export default function ProfilePage() {
                 <div
                   className={clsx(
                     "relative h-40 w-40 overflow-hidden rounded-2xl",
-                    {
-                      "border-4 border-dotted border-secondary":
-                        isPendingUploadBannerUrl,
-                    },
                   )}
                 >
-                  {isPendingUploadBannerUrl ? (
-                    <LoadingIcon />
-                  ) : (
-                    <>
-                      <Avatar
-                        radius="md"
-                        src={bannerUrl}
-                        className="h-full w-full cursor-pointer"
+                  <>
+                    <Avatar
+                      radius="md"
+                      src={bannerUrl}
+                      className="h-full w-full cursor-pointer"
+                    />
+                    <div className="absolute top-0 flex h-full w-full cursor-pointer items-center justify-center bg-[#1212120a] opacity-0 transition duration-150 hover:opacity-100">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="absolute h-full w-full cursor-pointer opacity-0"
+                        onChange={handleBannerChange}
                       />
-                      <div
-                        {...getRootPropsBannerUrl()}
-                        className="absolute top-0 flex h-full w-full cursor-pointer items-center justify-center bg-[#1212120a] opacity-0 transition duration-150 hover:opacity-100"
-                      >
-                        <Icon
-                          icon="tdesign:edit"
-                          className="text-3xl text-white"
-                        />
-                      </div>
-                    </>
-                  )}
+                      <Icon
+                        icon="tdesign:edit"
+                        className="text-3xl text-white"
+                      />
+                    </div>
+                  </>
                 </div>
               </div>
             </div>
@@ -238,14 +212,7 @@ export default function ProfilePage() {
               type="submit"
               size="lg"
               color="secondary"
-              isLoading={
-                isPendingUpdate ||
-                isPendingUploadAvatarUrl ||
-                isPendingUploadBannerUrl
-              }
-              isDisabled={
-                !methods.formState.isValid || !methods.formState.isDirty
-              }
+              isLoading={isPendingUpdate}
             >
               Save
             </Button>

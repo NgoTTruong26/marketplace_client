@@ -20,7 +20,7 @@ export default function Profile() {
   return (
     <>
       <div className="bg-[rgb(255,255,255)]">
-        <div className="border-b-16 border-b border-t-8 border-gray-300 bg-[rgb(255,255,255)] bg-gray-100 px-5 py-2">
+        <div className="border-b-16 border-b border-t-8 border-gray-300  bg-gray-100 px-5 py-2">
           <nav>
             <ul className="flex list-none gap-4 p-0">
               {[

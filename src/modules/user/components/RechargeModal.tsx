@@ -51,6 +51,7 @@ export default function RechargeModal({ onClose }: Props) {
             <Icon icon="material-symbols:wallet" className="text-xl" />
           }
           endContent={<Icon icon="healthicons:dollar" className="text-xl" />}
+          placeholder="Enter deposit amount"
           autoFocus
         />
       </ModalBody>

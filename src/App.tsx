@@ -21,7 +21,7 @@ export default function App() {
               <Routes />
             </Suspense>
             <ReactQueryDevtools />
-            <Toaster position="top-right" richColors />
+            <Toaster position="bottom-right" richColors />
           </QueryClientProvider>
         </GoogleOAuthProvider>
       </NextUIProvider>
