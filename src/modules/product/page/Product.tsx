@@ -301,17 +301,24 @@ export default function Product() {
 
                             disclosureDialogPaymentConfirm.onOpen()
                           }}
-                          isDisabled={quantity > getProduct.data.quantity}
+                          isDisabled={
+                            quantity > getProduct.data.quantity ||
+                            getProduct.data.quantity < 1
+                          }
                         >
-                          Buy now
+                          {getProduct.data.quantity < 1
+                            ? "Out Of Stock"
+                            : "Buy now"}
                         </Button>
+
                         <Button
                           size="lg"
                           color="secondary"
                           radius="none"
                           className="rounded-r-xl"
                           children={
-                            isRemoveProductFromCart(getProduct.data.id) ? (
+                            isRemoveProductFromCart(getProduct.data.id) ||
+                            getProduct.data.quantity < 1 ? (
                               <Icon icon="mdi:cart-off" className="text-2xl" />
                             ) : (
                               <Icon
@@ -324,14 +331,19 @@ export default function Product() {
                             if (!user.email) {
                               return disclosureLogin.onOpen()
                             }
-                            isRemoveProductFromCart(getProduct.data.id)
-                              ? handleRemoveProductFromCart(getProduct.data.id)
-                              : handleAddProductToCart(
-                                  user.cart.id,
-                                  getProduct.data.id,
-                                  quantity,
-                                )
+                            if (getProduct.data.quantity >= 1) {
+                              isRemoveProductFromCart(getProduct.data.id)
+                                ? handleRemoveProductFromCart(
+                                    getProduct.data.id,
+                                  )
+                                : handleAddProductToCart(
+                                    user.cart.id,
+                                    getProduct.data.id,
+                                    quantity,
+                                  )
+                            }
                           }}
+                          isDisabled={getProduct.data.quantity < 1}
                         />
                       </div>
                     </div>
@@ -427,8 +439,11 @@ export default function Product() {
 
                                 disclosureDialogPaymentConfirm.onOpen()
                               }}
+                              isDisabled={product.quantity < 1}
                             >
-                              Buy now
+                              {product.quantity < 1
+                                ? "Out Of Stock"
+                                : "Buy now"}
                             </Button>
                             <Button
                               color="secondary"
@@ -436,7 +451,8 @@ export default function Product() {
                               radius="none"
                               className="px-2"
                               children={
-                                isRemoveProductFromCart(product.id) ? (
+                                isRemoveProductFromCart(product.id) ||
+                                product.quantity < 1 ? (
                                   <Icon
                                     icon="mdi:cart-off"
                                     className="text-2xl"
@@ -453,13 +469,16 @@ export default function Product() {
                                   return disclosureLogin.onOpen()
                                 }
 
-                                isRemoveProductFromCart(product.id)
-                                  ? handleRemoveProductFromCart(product.id)
-                                  : handleAddProductToCart(
-                                      user.cart.id,
-                                      product.id,
-                                    )
+                                if (product.quantity >= 1) {
+                                  isRemoveProductFromCart(product.id)
+                                    ? handleRemoveProductFromCart(product.id)
+                                    : handleAddProductToCart(
+                                        user.cart.id,
+                                        product.id,
+                                      )
+                                }
                               }}
+                              isDisabled={product.quantity < 1}
                             />
                           </div>
                         </CardFooter>
