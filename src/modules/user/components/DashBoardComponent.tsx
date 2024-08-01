@@ -37,32 +37,30 @@ const AdminDashboard = () => {
   const orders = listOrder.data?.orders
   const [activeTab, setActiveTab] = useState<string>("collections")
 
-
-
   function convertToVietnamTime(dateString: string): string {
-    const date = new Date(dateString);
+    const date = new Date(dateString)
 
     // Vietnam is UTC+7
-    const vietnamOffset = 7 * 60; // 7 hours converted to minutes
-    const localOffset = date.getTimezoneOffset(); // Local offset in minutes
+    const vietnamOffset = 7 * 60 // 7 hours converted to minutes
+    const localOffset = date.getTimezoneOffset() // Local offset in minutes
 
     // Calculate the total offset from UTC to Vietnam time
-    const totalOffset = vietnamOffset + localOffset;
+    const totalOffset = vietnamOffset + localOffset
 
     // Adjust the date by the total offset
-    const vietnamTime = new Date(date.getTime() + totalOffset * 60 * 1000);
+    const vietnamTime = new Date(date.getTime() + totalOffset * 60 * 1000)
 
     // Get the components of the date
-    const day = String(vietnamTime.getUTCDate()).padStart(2, '0');
-    const month = String(vietnamTime.getUTCMonth() + 1).padStart(2, '0'); // Months are 0-based, so add 1
-    const year = vietnamTime.getUTCFullYear();
+    const day = String(vietnamTime.getUTCDate()).padStart(2, "0")
+    const month = String(vietnamTime.getUTCMonth() + 1).padStart(2, "0") // Months are 0-based, so add 1
+    const year = vietnamTime.getUTCFullYear()
 
     // Get the components of the time
-    const hours = String(vietnamTime.getUTCHours()).padStart(2, '0');
-    const minutes = String(vietnamTime.getUTCMinutes()).padStart(2, '0');
+    const hours = String(vietnamTime.getUTCHours()).padStart(2, "0")
+    const minutes = String(vietnamTime.getUTCMinutes()).padStart(2, "0")
 
     // Format the date and time
-    return `${day}/${month}/${year} ${hours}:${minutes}`;
+    return `${day}/${month}/${year} ${hours}:${minutes}`
   }
 
   const [editingCollection, setEditingCollection] = useState<number | null>(
@@ -170,7 +168,6 @@ const AdminDashboard = () => {
     )
     if (!confirmed) return
     const collectionId = id.toString()
-    console.log(collectionId)
     await deleteCollection(user.id.toString(), collectionId).then(
       async () => {},
     )
@@ -190,7 +187,6 @@ const AdminDashboard = () => {
     setViewOrder(order.id)
     setOrderId(order.id)
   }
-  console.log(convertToVietnamTime("2024-07-27 15:36:44.189+00"))
 
   return (
     <div className="admin-dashboard">

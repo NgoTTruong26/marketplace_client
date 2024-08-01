@@ -9,10 +9,8 @@ const ViewOrderComponent: React.FC<EditProductModalProps> = ({
   orderId,
   setViewOrder,
 }) => {
-  //   console.log(orderId)
   const listProduct = useGetListProductByOrderId(orderId?.toString() || "")
   const products = listProduct.data?.products || []
-  console.log(products)
 
   return (
     <div className="modal">

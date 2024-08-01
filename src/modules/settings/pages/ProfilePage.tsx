@@ -70,8 +70,6 @@ export default function ProfilePage() {
 
     mutate(formData, {
       onSuccess: (data) => {
-        console.log(123)
-        console.log(data)
         toast.success("Profile updated successfully")
         setUser({ ...user, profile: data })
       },

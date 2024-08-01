@@ -6,7 +6,7 @@ import { useUser } from "store/user"
 export default function AuthLayout({ children }: PropsWithChildren) {
   const [loading, setLoading] = useState<boolean>(true)
 
-  const { auth, setUser } = useUser()
+  const { auth, setUser, clear } = useUser()
 
   const getUserProfile = useGetUserProfile(!!auth.accessToken)
 
@@ -14,7 +14,11 @@ export default function AuthLayout({ children }: PropsWithChildren) {
     if (getUserProfile.data) {
       setUser(getUserProfile.data)
     }
-  }, [getUserProfile.data, setUser])
+
+    if (getUserProfile.isError) {
+      clear()
+    }
+  }, [getUserProfile.data, getUserProfile.isError, setUser])
 
   useEffect(() => {
     if (

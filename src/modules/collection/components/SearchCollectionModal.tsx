@@ -47,8 +47,6 @@ export default function SearchCollectionModal({ onClose }: Props) {
     }
   }, [getCollectionList.fetchNextPage, inView])
 
-  console.log(getCollectionList.isLoading)
-
   return (
     <>
       <ModalHeader className="flex flex-col gap-1">

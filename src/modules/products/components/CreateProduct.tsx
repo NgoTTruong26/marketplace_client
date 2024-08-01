@@ -37,10 +37,7 @@ export default function CreateProductComponent() {
   const [imageFile, setImage] = useState<File | null>(null)
   const navigate = useNavigate()
 
-  console.log(methods.watch())
-
   const onSubmit = async (data: createProductDTO) => {
-    console.log(data)
     const formData = new FormData()
     formData.append("name", data.name || "")
     formData.append("price", data.price.toString())
@@ -51,10 +48,7 @@ export default function CreateProductComponent() {
     if (imageFile) {
       formData.append("image", imageFile)
     }
-    console.log(formData)
-
-    await createProduct(formData).then((res) => {
-      console.log(res)
+    await createProduct(formData).then(() => {
       toast.success("Product created successfully")
     })
   }

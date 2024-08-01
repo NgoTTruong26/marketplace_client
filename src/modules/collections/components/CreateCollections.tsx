@@ -40,10 +40,7 @@ export default function CreateCollectionsComponent() {
   const [bannerFile, setBannerFile] = useState<File | null>(null)
   // const { user, clear } = useUser()
 
-  console.log(methods.watch())
-
   const onSubmit = async (data: createCollectionDTO) => {
-    console.log(data)
     const formData = new FormData()
     formData.append("name", data.name || "")
     formData.append("floor_price", data.floor_price.toString())

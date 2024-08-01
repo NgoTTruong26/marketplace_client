@@ -31,7 +31,6 @@ export function useGetProductList(
   data: GetProductListRequest,
   enabled?: boolean,
 ) {
-  console.log(data.minPrice, data.maxPrice)
   return useInfiniteQuery({
     queryKey: [
       "getProductList",
