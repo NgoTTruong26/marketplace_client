@@ -95,13 +95,16 @@ export default function Cart({ open, cycleOpen }: Props) {
 
   const increaseQuantity = (index: number, currentQuantity: number) => {
     methods.setValue(`products.${index}.quantity`, Number(currentQuantity) + 1)
+    return methods.watch(`products.${index}.quantity`)
   }
 
   const decreaseQuantity = (index: number, currentQuantity: number) => {
     if (Number(currentQuantity) < 2) {
-      return methods.setValue(`products.${index}.quantity`, 1)
+      methods.setValue(`products.${index}.quantity`, 1)
+      return methods.watch(`products.${index}.quantity`)
     }
     methods.setValue(`products.${index}.quantity`, Number(currentQuantity) - 1)
+    return methods.watch(`products.${index}.quantity`)
   }
 
   const totalPrice = () => {
@@ -338,12 +341,14 @@ export default function Cart({ open, cycleOpen }: Props) {
                                             icon="ic:round-minus"
                                             className="cursor-pointer text-xl"
                                             onClick={() => {
-                                              decreaseQuantity(idx, field.value)
                                               debouncedQuantity(
                                                 idx,
                                                 cartProduct.productId,
                                                 cartProduct.cartId,
-                                                field.value,
+                                                decreaseQuantity(
+                                                  idx,
+                                                  field.value,
+                                                ),
                                               )
                                             }}
                                           />
@@ -355,12 +360,14 @@ export default function Cart({ open, cycleOpen }: Props) {
                                             icon="ic:round-plus"
                                             className="cursor-pointer text-xl"
                                             onClick={() => {
-                                              increaseQuantity(idx, field.value)
                                               debouncedQuantity(
                                                 idx,
                                                 cartProduct.productId,
                                                 cartProduct.cartId,
-                                                field.value,
+                                                increaseQuantity(
+                                                  idx,
+                                                  field.value,
+                                                ),
                                               )
                                             }}
                                           />
