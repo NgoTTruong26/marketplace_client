@@ -1,3 +1,4 @@
+import Cookies from "js-cookie"
 import { User, UserAuth } from "types/user"
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
@@ -40,7 +41,10 @@ export const useUser = create<UserState>()(
       ...defaultUserState,
       setAuth: (auth) => set({ auth }),
       setUser: (user) => set({ user: { ...state().user, ...user } }),
-      clear: () => set({ ...defaultUserState }),
+      clear: () => {
+        Cookies.remove(import.meta.env.VITE_REFRESH_TOKEN)
+        set({ ...defaultUserState })
+      },
     }),
     {
       name: "user", // name of the item in the storage (must be unique)

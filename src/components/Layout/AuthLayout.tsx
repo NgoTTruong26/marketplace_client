@@ -10,7 +10,7 @@ export default function AuthLayout({ children }: PropsWithChildren) {
   const { auth, setUser, clear } = useUser()
 
   const getUserProfile = useGetUserProfile(
-    !!(auth.accessToken || Cookies.get("refresh_token")),
+    !!(auth.accessToken || Cookies.get(import.meta.env.VITE_REFRESH_TOKEN)),
   )
 
   useEffect(() => {
